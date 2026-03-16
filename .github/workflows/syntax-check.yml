@@ -20,4 +20,4 @@ jobs:
 
       - name: Compile Python sources
         run: |
-          python -m compileall guanlan tools webapp strategies examples run.py
+          python -m compileall tools webapp

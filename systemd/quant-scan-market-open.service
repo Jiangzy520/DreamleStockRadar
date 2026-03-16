@@ -1,6 +1,0 @@
-[Unit]
-Description=Start quant scan at market pre-open
-
-[Service]
-Type=oneshot
-ExecStart=/usr/bin/python3 /opt/guanlan-quant/tools/scan_service_scheduler.py start --service quant-scan.service

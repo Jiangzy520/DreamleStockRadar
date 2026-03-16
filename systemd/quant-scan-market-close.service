@@ -1,6 +1,0 @@
-[Unit]
-Description=Stop quant scan at market close
-
-[Service]
-Type=oneshot
-ExecStart=/usr/bin/python3 /opt/guanlan-quant/tools/scan_service_scheduler.py stop --service quant-scan.service

@@ -1,75 +1,34 @@
-# GitHub 发布步骤
+# GitHub 发布说明（纯网页版）
 
-建议仓库名：
+目标仓库：`https://github.com/Jiangzy520/DreamleStockRadar`
 
-- `guanlan-quant`
+## 推荐仓库信息
 
-建议仓库描述：
+- Name: `DreamleStockRadar`
+- Description: `A-share realtime scanner and web push dashboard powered by AllTick.`
+- Topics: `a-share`, `stock`, `scanner`, `alltick`, `flask`, `python`, `dashboard`, `trading-tools`
 
-- `A VNPY-based quant desktop platform with an AllTick-powered A-share realtime scanner and web dashboard.`
-
-建议 Topics：
-
-- `quant`
-- `trading`
-- `vnpy`
-- `alltick`
-- `python`
-- `pyside6`
-- `flask`
-- `systemd`
-- `a-share`
-
-## 1. 进入仓库目录
+## 本地发布命令
 
 ```bash
 cd /home/jzy/桌面/guanlan-quant
-```
-
-## 2. 检查要发布的文件
-
-```bash
 git status
-```
-
-## 3. 提交首个版本
-
-```bash
 git add .
-git commit -m "Initial public release"
+git commit -m "refactor: slim repository to web-only Dreamle Stock Radar"
+git push origin main
 ```
 
-## 4. 在 GitHub 新建空仓库
+## 首个公开 Release（建议）
 
-仓库地址建议使用：
+Tag: `v0.1.0`  
+Title: `Dreamle Stock Radar v0.1.0`
+
+Release Notes:
 
 ```text
-https://github.com/Jiangzy520/guanlan-quant
-```
-
-## 5. 关联远程并推送
-
-```bash
-git remote add origin https://github.com/Jiangzy520/guanlan-quant.git
-git push -u origin main
-```
-
-## 6. 推送后建议立刻补齐的 GitHub 页面信息
-
-- `About` 描述
-- `Website`（如果你后面想挂演示站）
-- `Topics`
-- 置顶到个人主页
-- 发布一个 `v0.1.0` Release
-
-## 7. 首个 Release 文案建议
-
-```text
-v0.1.0
-
-- Initial public release of Guanlan Quant
-- Desktop platform based on VNPY 4.3
-- Included AllTick-powered realtime A-share scanner
-- Included Flask web dashboard and Linux systemd examples
-- Removed private runtime data, API tokens and deployment secrets
+- Converted repository to web-only edition
+- Added realtime push dashboard for A-share scanning
+- Added image-based watchlist OCR and push snapshot generation
+- Removed desktop/client modules and unrelated legacy directories
+- Preserved deployment scripts for web service and scanner workers
 ```

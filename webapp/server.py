@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-Guanlan Web Dashboard server.
+Dreamle Stock Radar web dashboard server.
 
-This module exposes a deployable web entry for the existing desktop system.
-When vnpy/runtime deps are unavailable, it automatically falls back to mock mode
+This module provides a deployable web entry for realtime scanning and push viewing.
+When runtime deps are unavailable, it automatically falls back to mock mode
 so UI and deployment flow can still be validated.
 """
 
@@ -2103,7 +2103,7 @@ def create_app(auto_connect: bool = True) -> Flask:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Guanlan web dashboard")
+    parser = argparse.ArgumentParser(description="Dreamle Stock Radar web dashboard")
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", default=8768, type=int)
     parser.add_argument("--no-auto-connect", action="store_true")
