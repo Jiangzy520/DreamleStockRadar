@@ -3,6 +3,16 @@
 `DreamleStockRadar` 是 `https://dreamle.vip/push` 的纯网页版源码仓库。  
 本仓库聚焦 A 股实时扫描、信号展示和推送图生成，不再包含桌面端量化客户端代码。
 
+## 项目简介
+
+这是一个面向实盘盯盘场景的轻量 Web 工具，核心目标是：
+
+- 把多 API 扫描结果实时汇总到一个网页面板
+- 让信号、分配、日志和推送图可直接在浏览器查看
+- 降低“看脚本日志 + 手动整理”成本，方便长期运行
+
+如果你在做股票池筛选、盘中形态跟踪、信号回看，这个项目可以作为基础框架继续扩展。
+
 ## 在线地址
 
 - 站点：`https://dreamle.vip/push`
@@ -15,6 +25,17 @@
 - 推送图一键生成与预览
 - API 分配与扫描日志可视化
 - 页面内策略说明、风险提示与个人交流区
+
+## 图片展示
+
+<p>
+  <img src="webapp/static/profile/account.jpg" alt="账户与盈亏记录" width="360" />
+  <img src="webapp/static/profile/orders.jpg" alt="历史委托记录" width="360" />
+</p>
+<p>
+  <img src="webapp/static/profile/contract.jpg" alt="合约收益记录" width="360" />
+  <img src="webapp/static/profile/wechat.jpg" alt="交流联系方式" width="360" />
+</p>
 
 ## 项目结构
 
