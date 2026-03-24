@@ -17,7 +17,7 @@
 ## 文档导航
 
 - [环境准备：下载 VS Code 并安装 Codex 扩展](./docs/VSCODE_CODEX_SETUP.md)
-- [架构说明](./docs/ARCHITECTURE_OVERVIEW.md)
+- [股票、期货实时数据获取说明](./docs/STOCK_FUTURES_REALTIME_DATA.md)
 - [股票模拟盘自动化](./docs/STOCK_PAPER_TRADING_AUTOMATION.md)
 - [多源数据输入说明](./docs/MARKET_DATA_INPUTS.md)
 
@@ -29,7 +29,7 @@ webapp/
   templates/push.html
 docs/
   VSCODE_CODEX_SETUP.md
-  ARCHITECTURE_OVERVIEW.md
+  STOCK_FUTURES_REALTIME_DATA.md
   STOCK_PAPER_TRADING_AUTOMATION.md
   MARKET_DATA_INPUTS.md
 requirements.txt
