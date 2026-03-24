@@ -1,49 +1,5 @@
-# Python 虚拟环境
-venv/
-.venv/
-env/
-ENV/
-.localdeps/
-
-# Python 编译文件
 __pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-.pytest_cache/
-.mypy_cache/
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# 运行时配置目录
-.guanlan/
-
-# 数据文件
-examples/data/
-*.db
-*.sqlite
-*.log
-*.csv
-alltick_apis_*.txt
-mailbox_passwords_reset_*.csv
-
-# 配置文件
+*.pyc
 .env
-.env.*
-!.env.example
-*.ini
-
-# 打包与归档
-archives/
-*.zip
-*.tar.gz
-
-# 系统文件
-.DS_Store
-Thumbs.db
+.venv/
+*.log
