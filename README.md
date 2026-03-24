@@ -18,7 +18,7 @@
 
 - [环境准备：下载 VS Code 并安装 Codex 扩展](./docs/VSCODE_CODEX_SETUP.md)
 - [股票、期货实时数据获取说明](./docs/STOCK_FUTURES_REALTIME_DATA.md)
-- [股票模拟盘自动化](./docs/STOCK_PAPER_TRADING_AUTOMATION.md)
+- [股票、期货模拟盘账号与接口说明](./docs/STOCK_FUTURES_SIM_ACCOUNT_INTERFACES.md)
 - [多源数据输入说明](./docs/MARKET_DATA_INPUTS.md)
 
 ## 目录说明
@@ -30,7 +30,7 @@ webapp/
 docs/
   VSCODE_CODEX_SETUP.md
   STOCK_FUTURES_REALTIME_DATA.md
-  STOCK_PAPER_TRADING_AUTOMATION.md
+  STOCK_FUTURES_SIM_ACCOUNT_INTERFACES.md
   MARKET_DATA_INPUTS.md
 requirements.txt
 start_guanlan_web.sh
@@ -57,12 +57,12 @@ http://127.0.0.1:8768/push
 - 说明多源输入、监控面板和自动化链路的整体思路
 - 作为公开演示、产品说明和后续文档扩展的仓库入口
 
-## 股票模拟盘自动化
+## 股票、期货模拟盘账号与接口
 
-股票模拟盘自动化这一层，主要解决的是统一信号消费、去重过滤、模拟账户状态读取、下单约束判断和订单状态回写，而不是公开具体策略细节。
+公开版里更适合分享的是模拟盘账号申请路径、接口接入方式和工程分层，而不是私有策略或内部交易参数。
 
 详细说明见：
-- [股票模拟盘自动化](./docs/STOCK_PAPER_TRADING_AUTOMATION.md)
+- [股票、期货模拟盘账号与接口说明](./docs/STOCK_FUTURES_SIM_ACCOUNT_INTERFACES.md)
 
 ## 多源数据输入
 
