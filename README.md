@@ -1,4 +1,4 @@
-# GitHub Public Demo
+# 股票、期货实时数据与模拟盘自动化公开版
 
 这是从私有生产项目中整理出来的一份 GitHub 安全公开版，用于产品展示、结构说明和公开演示。
 
@@ -20,6 +20,10 @@
 - [股票、期货实时数据获取说明](./docs/STOCK_FUTURES_REALTIME_DATA.md)
 - [股票、期货模拟盘账号与接口说明](./docs/STOCK_FUTURES_SIM_ACCOUNT_INTERFACES.md)
 
+## 页面预览
+
+![公开演示版首页](./docs/assets/public-demo-dashboard.png)
+
 ## 目录说明
 
 ```text
@@ -27,6 +31,7 @@ webapp/
   server.py
   templates/push.html
 docs/
+  assets/public-demo-dashboard.png
   VSCODE_CODEX_SETUP.md
   STOCK_FUTURES_REALTIME_DATA.md
   STOCK_FUTURES_SIM_ACCOUNT_INTERFACES.md
