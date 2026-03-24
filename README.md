@@ -1,105 +1,61 @@
-# Dreamle Stock Radar
+# GitHub Public Demo
 
-`DreamleStockRadar` 是 `https://dreamle.vip/push` 的纯网页版源码仓库。  
-本仓库聚焦 A 股实时扫描、信号展示和推送图生成，不再包含桌面端量化客户端代码。
+这是从私有生产项目中整理出来的一份 GitHub 安全公开版，用来配合论坛发帖和产品展示。
 
-## 项目简介
+这个公开版保留了什么：
+- 一个轻量 Flask 网站壳子
+- 一个适合展示的公开演示页面
+- 通用演示 API 返回
+- 最小运行脚本和依赖文件
 
-这是一个面向实盘盯盘场景的轻量 Web 工具，核心目标是：
+这个公开版移除了什么：
+- 生产策略代码
+- 策略定义、触发规则和参数细节
+- 私有数据源接入和服务端扫描逻辑
+- 服务器专用配置、运行数据、密钥和接口地址
 
-- 把多 API 扫描结果实时汇总到一个网页面板
-- 让信号、分配、日志和推送图可直接在浏览器查看
-- 降低“看脚本日志 + 手动整理”成本，方便长期运行
+如果你是从论坛帖子点进来的，可以先看这些文档：
+- [论坛发布说明](./docs/FORUM_RELEASE_GUIDE.md)
+- [论坛配图清单](./docs/SCREENSHOT_CHECKLIST.md)
+- [架构说明](./docs/ARCHITECTURE_OVERVIEW.md)
 
-如果你在做股票池筛选、盘中形态跟踪、信号回看，这个项目可以作为基础框架继续扩展。
-
-## 在线地址
-
-- 站点：`https://dreamle.vip/push`
-- 仓库：`https://github.com/Jiangzy520/DreamleStockRadar`
-
-## 核心功能
-
-- AllTick 毫秒级扫描状态看板
-- 实时信号流（左1 / 左2 / 右1 / 右2 / 确认买点）
-- 推送图一键生成与预览
-- API 分配与扫描日志可视化
-- 页面内策略说明、风险提示与个人交流区
-
-## 策略介绍
-
-系统以日内分时形态识别为核心，跟踪关键结构点位 `R1 / R2 / L1 / L2`。  
-当价格在右侧确认后向上突破 `L2`，触发买入信号并进入推送流。
-
-## 基础股票池过滤（硬性条件）
-
-在执行分时信号识别前，先做基础面过滤；任一条件不满足则剔除：
-
-1. 业绩预告预亏剔除  
-   最新业绩预告出现“首亏 / 续亏 / 增亏”时，标的当日及预告后首个交易日不参与。
-2. 每股收益（EPS）为负剔除  
-   最新定期报告中基本每股收益 `< 0`，则持续剔除，直至后续财报转正。
-3. 动态市盈率（PE TTM）为负剔除  
-   若滚动市盈率 `< 0`，则持续剔除，直至后续财报转正（与 EPS 规则形成双重保险）。
-
-## 项目结构
+## 目录说明
 
 ```text
 webapp/
-  server.py                 # Flask 入口
-  templates/push.html       # 主页面
-  static/                   # 前端资源（CSS/JS/图片）
-tools/
-  alltick_multi_token_seconds_live.py   # 实时扫描脚本
-  generate_push_image.py                # 推送图生成
-  watchlist_image_ocr.py                # 截图提取股票代码
-start_guanlan_web.sh         # 启动 Web 服务
-start_alltick_multi_token_seconds.sh
-start_push_image_worker.sh
+  server.py
+  templates/push.html
+docs/
+  FORUM_RELEASE_GUIDE.md
+  SCREENSHOT_CHECKLIST.md
+  ARCHITECTURE_OVERVIEW.md
+requirements.txt
+start_guanlan_web.sh
+LICENSE
 ```
 
 ## 本地运行
 
-1. 安装依赖
-
 ```bash
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
+python webapp/server.py --host 127.0.0.1 --port 8768
 ```
 
-2. 启动 Web 服务
-
-```bash
-python webapp/server.py --host 0.0.0.0 --port 8768
-```
-
-3. 访问页面
+打开：
 
 ```text
 http://127.0.0.1:8768/push
 ```
 
-## 运行数据目录
+## 公开版定位
 
-默认运行数据位于项目根目录 `.guanlan/`：
+这不是线上生产系统的完整开源版本，而是一份适合公开分享的演示仓库，主要用于：
+- 配合论坛帖子展示产品形态
+- 展示网站结构和前端页面
+- 讲解多源输入、监控面板和模拟盘自动化的整体思路
 
-- `.guanlan/alltick_manager/watchlist.csv`
-- `.guanlan/alltick_manager/apis.txt`
-- `.guanlan/alltick_manager/stock_assignments.csv`
-- `.guanlan/alltick/multi_token_variant_double_bottom_signals.csv`
-
-请勿提交真实 API Token、账号密码或私有运行数据。
-
-## 部署建议
-
-- `nginx` 开启 `limit_req` + `limit_conn`，防止简单刷请求和爬虫
-- 对 `/alltick/` 等后台路径启用 Basic Auth
-- 配合 `systemd` 保证扫描脚本开机自启与异常重启
-- 全站启用 HTTPS 与自动续期
-
-## 免责声明
-
-页面内容仅供参考，不构成投资建议。炒股有风险，入市需谨慎。
-
-## License
-
-MIT
+如果后续你准备继续完善公开仓库，建议优先补这几类内容：
+- 页面截图
+- 架构图
+- 论坛帖子链接
+- 演示视频或 GIF
