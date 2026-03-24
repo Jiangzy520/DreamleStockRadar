@@ -1,0 +1,829 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AllTick 配对台</title>
+  <style>
+    :root {
+      --bg: #f2eadc;
+      --paper: rgba(255, 252, 245, 0.86);
+      --ink: #1d2a2d;
+      --muted: #66727a;
+      --line: rgba(29, 42, 45, 0.1);
+      --accent: #d15b35;
+      --accent-2: #1e6f5c;
+      --warn: #a43d2f;
+      --shadow: 0 18px 48px rgba(71, 52, 32, 0.12);
+      --radius: 24px;
+      --font-display: "Source Han Serif SC", "Noto Serif SC", "Songti SC", serif;
+      --font-body: "Noto Sans SC", "Source Han Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: var(--font-body);
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(209, 91, 53, 0.14), transparent 28%),
+        radial-gradient(circle at top right, rgba(30, 111, 92, 0.18), transparent 32%),
+        linear-gradient(180deg, #f7f0e4 0%, #efe3d1 54%, #eadbc7 100%);
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.26) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.26) 1px, transparent 1px);
+      background-size: 32px 32px;
+      opacity: 0.28;
+      pointer-events: none;
+    }
+
+    .page {
+      position: relative;
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 32px 24px 56px;
+    }
+
+    .hero {
+      display: grid;
+      gap: 20px;
+      margin-bottom: 28px;
+      animation: rise 0.55s ease-out;
+    }
+
+    .hero-card,
+    .panel {
+      background: var(--paper);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.75);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+    }
+
+    .hero-card {
+      padding: 28px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      right: -72px;
+      top: -72px;
+      background: radial-gradient(circle, rgba(209, 91, 53, 0.22), transparent 70%);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      font-size: 13px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent-2);
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-family: var(--font-display);
+      font-size: clamp(34px, 6vw, 68px);
+      line-height: 0.94;
+      letter-spacing: -0.04em;
+    }
+
+    .hero-copy {
+      max-width: 720px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.8;
+    }
+
+    .stats {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      margin-top: 18px;
+    }
+
+    .stat {
+      padding: 18px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid var(--line);
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .grid {
+      display: grid;
+      gap: 20px;
+      grid-template-columns: 1.15fr 1fr;
+      align-items: start;
+    }
+
+    .stack {
+      display: grid;
+      gap: 20px;
+    }
+
+    .panel {
+      padding: 24px;
+      animation: rise 0.55s ease-out;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .panel-title {
+      margin: 0;
+      font-family: var(--font-display);
+      font-size: 28px;
+      line-height: 1.1;
+    }
+
+    .panel-subtitle {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 14px;
+      border-radius: 999px;
+      background: rgba(30, 111, 92, 0.1);
+      color: var(--accent-2);
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .actions,
+    .inline-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    label {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    textarea,
+    input,
+    select {
+      width: 100%;
+      border-radius: 16px;
+      border: 1px solid rgba(29, 42, 45, 0.12);
+      background: rgba(255, 255, 255, 0.8);
+      padding: 14px 16px;
+      font: inherit;
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    textarea {
+      min-height: 124px;
+      resize: vertical;
+    }
+
+    textarea:focus,
+    input:focus,
+    select:focus {
+      border-color: rgba(209, 91, 53, 0.7);
+      box-shadow: 0 0 0 4px rgba(209, 91, 53, 0.12);
+      transform: translateY(-1px);
+    }
+
+    button {
+      border: 0;
+      border-radius: 16px;
+      padding: 13px 18px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .primary {
+      background: linear-gradient(135deg, var(--accent) 0%, #b94325 100%);
+      color: #fffaf6;
+      box-shadow: 0 12px 24px rgba(209, 91, 53, 0.24);
+    }
+
+    .secondary {
+      background: rgba(29, 42, 45, 0.08);
+      color: var(--ink);
+    }
+
+    .ghost {
+      background: rgba(30, 111, 92, 0.12);
+      color: var(--accent-2);
+    }
+
+    .danger {
+      background: rgba(164, 61, 47, 0.12);
+      color: var(--warn);
+    }
+
+    .table-wrap {
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.64);
+      max-height: 420px;
+      overflow: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 640px;
+    }
+
+    th,
+    td {
+      padding: 12px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      font-size: 13px;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      background: rgba(246, 239, 229, 0.96);
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      z-index: 1;
+    }
+
+    td code {
+      font-family: "JetBrains Mono", "Fira Code", monospace;
+      font-size: 12px;
+      word-break: break-all;
+      color: #7d311d;
+    }
+
+    .empty {
+      padding: 22px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .toolbar a {
+      color: var(--accent-2);
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .notice {
+      display: none;
+      margin-bottom: 16px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      font-size: 14px;
+      border: 1px solid rgba(29, 42, 45, 0.08);
+      background: rgba(255, 255, 255, 0.72);
+    }
+
+    .notice.show {
+      display: block;
+      animation: rise 0.25s ease-out;
+    }
+
+    .notice.success {
+      color: var(--accent-2);
+      background: rgba(30, 111, 92, 0.12);
+    }
+
+    .notice.error {
+      color: var(--warn);
+      background: rgba(164, 61, 47, 0.12);
+    }
+
+    .meta {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      margin-top: 18px;
+    }
+
+    .meta .stat {
+      min-height: 100px;
+    }
+
+    .small {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    @keyframes rise {
+      from {
+        transform: translateY(8px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    @media (max-width: 1100px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        padding: 20px 14px 40px;
+      }
+
+      .hero-card,
+      .panel {
+        padding: 18px;
+        border-radius: 20px;
+      }
+
+      .panel-title {
+        font-size: 24px;
+      }
+
+      .stats {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="hero-card">
+        <p class="eyebrow">AllTick Local Console</p>
+        <h1>AllTick 配对台</h1>
+        <p class="hero-copy">
+          本地管理 API、自选股和分配结果。默认走均匀分配，尽量优先让更多 API 参与；后面你只需要继续往这里添加 API 或股票，再点一次重新分配即可。
+        </p>
+        <div id="notice" class="notice"></div>
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-label">API 总数</div>
+            <div class="stat-value" id="stat-api-count">0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">自选股总数</div>
+            <div class="stat-value" id="stat-stock-count">0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">已使用 API</div>
+            <div class="stat-value" id="stat-used-api-count">0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">未分配股票</div>
+            <div class="stat-value" id="stat-unassigned-stock-count">0</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="stack">
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">API 仓库</h2>
+              <p class="panel-subtitle">支持粘贴多行 token，自动去重。后续新增 API 直接贴进来即可。</p>
+            </div>
+            <div class="pill">TXT / 多行文本</div>
+          </div>
+          <div class="field">
+            <label for="api-input">新增 API</label>
+            <textarea id="api-input" placeholder="每行一个 token，或直接粘贴整段文本"></textarea>
+          </div>
+          <div class="actions">
+            <button class="primary" id="add-api-btn">添加 API</button>
+            <button class="secondary" id="import-api-btn">导入本地 TXT</button>
+            <input type="file" id="api-file-input" accept=".txt,.csv" hidden>
+            <a href="/api/export/apis.txt">导出当前 API</a>
+          </div>
+          <div class="toolbar" style="margin-top:18px">
+            <strong>当前 API 列表</strong>
+            <span class="small">点击删除可即时生效</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>API</th>
+                  <th>已分配股票数</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="api-table-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">自选股票池</h2>
+              <p class="panel-subtitle">支持 `000001,平安银行`、`600000 浦发银行` 或 `000001.SZ,平安银行`。</p>
+            </div>
+            <div class="pill">CSV / 多行文本</div>
+          </div>
+          <div class="field">
+            <label for="stock-input">新增自选股</label>
+            <textarea id="stock-input" placeholder="每行一只股票，例如&#10;000001,平安银行&#10;600000 浦发银行"></textarea>
+          </div>
+          <div class="actions">
+            <button class="primary" id="add-stock-btn">添加自选股</button>
+            <button class="secondary" id="import-stock-btn">导入本地 CSV</button>
+            <input type="file" id="stock-file-input" accept=".txt,.csv" hidden>
+            <a href="/api/export/watchlist.csv">导出当前股票池</a>
+          </div>
+          <div class="toolbar" style="margin-top:18px">
+            <strong>当前股票列表</strong>
+            <span class="small">删除后会自动重算分配</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>代码</th>
+                  <th>Symbol</th>
+                  <th>名称</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="stock-table-body"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <div class="stack">
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">分配规则</h2>
+              <p class="panel-subtitle">推荐用“均匀分配”，会优先让更多 API 参与，再逐步给 API 加第二只、第三只股票。</p>
+            </div>
+            <div class="pill">实时重算</div>
+          </div>
+          <div class="field">
+            <label for="distribution-mode">分配方式</label>
+            <select id="distribution-mode">
+              <option value="balanced">均匀分配，尽量让更多 API 参与</option>
+              <option value="sequential">顺序装满，先把前面的 API 配满</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="max-stocks-per-api">每个 API 最大股票数</label>
+            <input id="max-stocks-per-api" type="number" min="1" step="1" value="2">
+          </div>
+          <div class="inline-actions">
+            <button class="primary" id="save-settings-btn">保存并重新分配</button>
+            <a href="/api/export/watchlist.txt">导出脚本 watchlist</a>
+          </div>
+          <div class="meta">
+            <div class="stat">
+              <div class="stat-label">未使用 API</div>
+              <div class="stat-value" id="stat-unused-api-count">0</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">已分配股票</div>
+              <div class="stat-value" id="stat-assigned-stock-count">0</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">API 视角</h2>
+              <p class="panel-subtitle">看每个 API 当前分到了哪些股票。</p>
+            </div>
+            <div class="actions">
+              <a href="/api/export/api_assignments.csv">导出 CSV</a>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>API</th>
+                  <th>股票数</th>
+                  <th>股票列表</th>
+                </tr>
+              </thead>
+              <tbody id="assignment-api-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">股票 视角</h2>
+              <p class="panel-subtitle">看每只股票当前对应哪个 API。</p>
+            </div>
+            <div class="actions">
+              <a href="/api/export/stock_assignments.csv">导出 CSV</a>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>代码</th>
+                  <th>名称</th>
+                  <th>API</th>
+                  <th>状态</th>
+                </tr>
+              </thead>
+              <tbody id="assignment-stock-body"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const state = {
+      data: null,
+    };
+
+    const notice = document.getElementById("notice");
+
+    function showNotice(message, type = "success") {
+      notice.textContent = message;
+      notice.className = `notice show ${type}`;
+      window.clearTimeout(showNotice.timer);
+      showNotice.timer = window.setTimeout(() => {
+        notice.className = "notice";
+      }, 2800);
+    }
+
+    async function request(url, options = {}) {
+      const response = await fetch(url, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        ...options,
+      });
+      if (!response.ok) {
+        throw new Error(`请求失败: ${response.status}`);
+      }
+      return response.json();
+    }
+
+    function renderStats(summary) {
+      document.getElementById("stat-api-count").textContent = summary.api_count;
+      document.getElementById("stat-stock-count").textContent = summary.stock_count;
+      document.getElementById("stat-used-api-count").textContent = summary.used_api_count;
+      document.getElementById("stat-unused-api-count").textContent = summary.unused_api_count;
+      document.getElementById("stat-assigned-stock-count").textContent = summary.assigned_stock_count;
+      document.getElementById("stat-unassigned-stock-count").textContent = summary.unassigned_stock_count;
+      document.getElementById("distribution-mode").value = summary.distribution_mode;
+      document.getElementById("max-stocks-per-api").value = summary.max_stocks_per_api;
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+    }
+
+    function renderApiTable(items) {
+      const tbody = document.getElementById("api-table-body");
+      if (!items.length) {
+        tbody.innerHTML = `<tr><td colspan="4" class="empty">还没有 API</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = items.map((item) => `
+        <tr>
+          <td>${item.seq}</td>
+          <td><code>${escapeHtml(item.api)}</code></td>
+          <td>${item.stock_count}</td>
+          <td><button class="danger" data-remove-api="${escapeHtml(item.api)}">删除</button></td>
+        </tr>
+      `).join("");
+    }
+
+    function renderStockTable(items) {
+      const tbody = document.getElementById("stock-table-body");
+      if (!items.length) {
+        tbody.innerHTML = `<tr><td colspan="5" class="empty">还没有自选股</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = items.map((item) => `
+        <tr>
+          <td>${item.seq}</td>
+          <td>${escapeHtml(item.code)}</td>
+          <td><code>${escapeHtml(item.symbol)}</code></td>
+          <td>${escapeHtml(item.name)}</td>
+          <td><button class="danger" data-remove-stock="${escapeHtml(item.symbol)}">删除</button></td>
+        </tr>
+      `).join("");
+    }
+
+    function renderApiAssignments(items) {
+      const tbody = document.getElementById("assignment-api-body");
+      if (!items.length) {
+        tbody.innerHTML = `<tr><td colspan="4" class="empty">暂无分配结果</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = items.map((item) => `
+        <tr>
+          <td>${item.api_seq}</td>
+          <td><code>${escapeHtml(item.api)}</code></td>
+          <td>${item.stock_count}</td>
+          <td>${escapeHtml(item.stocks || "-")}</td>
+        </tr>
+      `).join("");
+    }
+
+    function renderStockAssignments(items) {
+      const tbody = document.getElementById("assignment-stock-body");
+      if (!items.length) {
+        tbody.innerHTML = `<tr><td colspan="5" class="empty">暂无分配结果</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = items.map((item) => `
+        <tr>
+          <td>${item.stock_seq}</td>
+          <td>${escapeHtml(item.code)}</td>
+          <td>${escapeHtml(item.name)}</td>
+          <td>${item.api ? `<code>${escapeHtml(item.api)}</code>` : "-"}</td>
+          <td>${escapeHtml(item.status)}</td>
+        </tr>
+      `).join("");
+    }
+
+    function render(data) {
+      state.data = data;
+      renderStats(data.summary);
+      renderApiTable(data.apis);
+      renderStockTable(data.stocks);
+      renderApiAssignments(data.assignments.api_view);
+      renderStockAssignments(data.assignments.stock_view);
+    }
+
+    async function refresh() {
+      const data = await request("/api/state");
+      render(data);
+    }
+
+    async function postJson(url, payload) {
+      const result = await request(url, {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+      render(result.state);
+      showNotice(result.message);
+    }
+
+    async function addApis() {
+      const input = document.getElementById("api-input");
+      const text = input.value.trim();
+      if (!text) {
+        showNotice("先填入要新增的 API", "error");
+        return;
+      }
+      await postJson("/api/apis/add", { text });
+      input.value = "";
+    }
+
+    async function addStocks() {
+      const input = document.getElementById("stock-input");
+      const text = input.value.trim();
+      if (!text) {
+        showNotice("先填入要新增的自选股", "error");
+        return;
+      }
+      await postJson("/api/stocks/add", { text });
+      input.value = "";
+    }
+
+    async function saveSettings() {
+      const distributionMode = document.getElementById("distribution-mode").value;
+      const maxStocksPerApi = Number(document.getElementById("max-stocks-per-api").value || 2);
+      if (maxStocksPerApi < 1) {
+        showNotice("每个 API 最大股票数至少为 1", "error");
+        return;
+      }
+      await postJson("/api/settings/update", {
+        distribution_mode: distributionMode,
+        max_stocks_per_api: maxStocksPerApi,
+      });
+    }
+
+    function bindFileImport(buttonId, inputId, targetId) {
+      const button = document.getElementById(buttonId);
+      const input = document.getElementById(inputId);
+      const target = document.getElementById(targetId);
+      button.addEventListener("click", () => input.click());
+      input.addEventListener("change", async (event) => {
+        const [file] = event.target.files || [];
+        if (!file) {
+          return;
+        }
+        const text = await file.text();
+        target.value = text;
+        input.value = "";
+      });
+    }
+
+    document.getElementById("add-api-btn").addEventListener("click", addApis);
+    document.getElementById("add-stock-btn").addEventListener("click", addStocks);
+    document.getElementById("save-settings-btn").addEventListener("click", saveSettings);
+
+    document.addEventListener("click", async (event) => {
+      const api = event.target.getAttribute("data-remove-api");
+      const symbol = event.target.getAttribute("data-remove-stock");
+      if (api) {
+        await postJson("/api/apis/remove", { api });
+      }
+      if (symbol) {
+        await postJson("/api/stocks/remove", { symbol });
+      }
+    });
+
+    bindFileImport("import-api-btn", "api-file-input", "api-input");
+    bindFileImport("import-stock-btn", "stock-file-input", "stock-input");
+
+    refresh().catch((error) => showNotice(error.message, "error"));
+  </script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "用户名": "DEMO_USER",
+  "密码": "DEMO_PASSWORD",
+  "经纪商代码": "0000",
+  "交易服务器": "tcp://demo.trade.front:0000",
+  "行情服务器": "tcp://demo.market.front:0000",
+  "产品名称": "demo_product",
+  "授权编码": "DEMO_AUTH",
+  "柜台环境": "演示"
+}

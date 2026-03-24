@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>推送窗口</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #08111d;
+      --panel: rgba(11, 22, 35, 0.92);
+      --line: rgba(120, 170, 230, 0.18);
+      --text: #eef5ff;
+      --muted: #89a2bf;
+      --cyan: #66ddff;
+      --green: #76efbb;
+      --amber: #ffd36f;
+      --danger: #ff7c97;
+      --shadow: 0 36px 80px rgba(0, 0, 0, 0.28);
+      --radius: 32px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(33, 124, 255, 0.18), transparent 24%),
+        linear-gradient(180deg, #06101a 0%, #0a1522 48%, #07101a 100%);
+      min-height: 100vh;
+    }
+
+    .shell {
+      width: min(100%, calc(100vw - 24px));
+      margin: 24px auto;
+    }
+
+    .hero,
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 36px 40px;
+      margin-bottom: 32px;
+    }
+
+    .title {
+      font-size: 48px;
+      font-weight: 700;
+      margin: 0 0 12px;
+    }
+
+    .sub {
+      color: var(--muted);
+      font-size: 26px;
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    .status {
+      margin-top: 24px;
+      display: inline-flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 26px;
+      color: var(--muted);
+    }
+
+    .dot {
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      background: var(--danger);
+      box-shadow: 0 0 24px rgba(255, 109, 141, 0.55);
+    }
+
+    .dot.ok {
+      background: var(--green);
+      box-shadow: 0 0 24px rgba(118, 239, 187, 0.55);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .card {
+      padding: 28px 32px;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background: rgba(15, 28, 43, 0.86);
+    }
+
+    .label {
+      color: var(--muted);
+      font-size: 24px;
+    }
+
+    .value {
+      margin-top: 16px;
+      font-size: 52px;
+      font-weight: 700;
+    }
+
+    .value.small {
+      font-size: 36px;
+    }
+
+    .value.cyan {
+      color: var(--cyan);
+    }
+
+    .value.amber {
+      color: var(--amber);
+    }
+
+    .value.green {
+      color: var(--green);
+    }
+
+    .panels {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 32px;
+    }
+
+    .panel {
+      padding: 32px 36px;
+    }
+
+    .panel h2 {
+      margin: 0 0 24px;
+      font-size: 32px;
+    }
+
+    .kv {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 20px 24px;
+      font-size: 28px;
+      align-items: start;
+    }
+
+    .kv .k {
+      color: var(--muted);
+    }
+
+    .signal-list {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      max-height: 720px;
+      overflow: auto;
+    }
+
+    .signal-item {
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: rgba(9, 19, 31, 0.7);
+      padding: 24px 28px;
+    }
+
+    .signal-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .signal-code {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--cyan);
+    }
+
+    .signal-time {
+      font-size: 24px;
+      color: var(--muted);
+    }
+
+    .signal-meta {
+      color: var(--text);
+      font-size: 26px;
+      line-height: 1.6;
+    }
+
+    .empty {
+      color: var(--muted);
+      font-size: 26px;
+    }
+
+    @media (max-width: 1200px) {
+      .grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .panels {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <section class="hero">
+      <h1 class="title" id="pageTitle">推送窗口</h1>
+      <p class="sub" id="pageSubtitle">正在连接实时推送数据...</p>
+      <div class="status"><span id="statusDot" class="dot"></span><span id="statusText">连接中...</span></div>
+    </section>
+
+    <section class="grid">
+      <div class="card">
+        <div class="label">自选</div>
+        <div id="watchCount" class="value">--</div>
+      </div>
+      <div class="card">
+        <div class="label">Tick 延迟</div>
+        <div id="tickDelay" class="value amber">--</div>
+      </div>
+      <div class="card">
+        <div class="label">最新 Tick</div>
+        <div id="tickSymbol" class="value cyan small">--</div>
+      </div>
+      <div class="card">
+        <div class="label">信号数</div>
+        <div id="signalCount" class="value green">--</div>
+      </div>
+    </section>
+
+    <section class="panels">
+      <div class="panel">
+        <h2>实时快照</h2>
+        <div class="kv">
+          <div class="k">最新 Tick 时间</div><div id="tickTime">--</div>
+          <div class="k">Tick 价格</div><div id="tickPrice">--</div>
+          <div class="k">接收延迟</div><div id="tickIngest">--</div>
+          <div class="k">最新信号</div><div id="latestSignal">--</div>
+          <div class="k">更新时间</div><div id="updatedAt">--</div>
+          <div class="k">来源</div><div id="sourceLine">--</div>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>最近信号</h2>
+        <div id="signalList" class="signal-list"><div class="empty">等待信号中...</div></div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const sourceMode = params.get("source") === "local" ? "local" : "remote";
+
+    const config = {
+      local: {
+        title: "本地推送窗口",
+        subtitle: "展示当前公开版的本地实时预览数据。",
+        sourceLabel: "127.0.0.1 /push",
+        signalsUrl: "/api/realtime/signals?limit=0",
+        streamUrl: "/api/realtime/stream?limit=0",
+      },
+      remote: {
+        title: "远端推送窗口",
+        subtitle: "公开版示例镜像入口，默认不连接任何生产服务器。",
+        sourceLabel: "public-demo /push",
+        signalsUrl: "/mrj-source/api/realtime/signals?limit=0",
+        streamUrl: "/mrj-source/api/realtime/stream?limit=0",
+      },
+    }[sourceMode];
+
+    if (params.get("title")) {
+      config.title = params.get("title");
+    }
+    if (params.get("subtitle")) {
+      config.subtitle = params.get("subtitle");
+    }
+
+    document.title = config.title;
+    document.getElementById("pageTitle").textContent = config.title;
+    document.getElementById("pageSubtitle").textContent = config.subtitle;
+    document.getElementById("sourceLine").textContent = config.sourceLabel;
+
+    const state = {
+      stream: null,
+      reconnectTimer: 0,
+      lastData: null,
+    };
+
+    function setText(id, value) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = value == null || value === "" ? "--" : String(value);
+    }
+
+    function fmtStamp(tradingDay, stamp) {
+      if (!stamp) return "--";
+      if (String(stamp).includes(" ")) return stamp;
+      return tradingDay ? `${tradingDay} ${stamp}` : stamp;
+    }
+
+    async function readJson(resp, fallback) {
+      const text = await resp.text();
+      let data;
+      try {
+        data = text ? JSON.parse(text) : {};
+      } catch (error) {
+        throw new Error(`${fallback}: ${text.slice(0, 120) || error.message}`);
+      }
+      if (!resp.ok || !data.ok) {
+        throw new Error(data.error || `${fallback}: HTTP ${resp.status}`);
+      }
+      return data;
+    }
+
+    function applySnapshot(payload) {
+      state.lastData = payload;
+      document.getElementById("statusDot").classList.add("ok");
+      setText("statusText", "在线");
+      setText("watchCount", payload.watchlist_count || 0);
+      setText("tickDelay", payload.latest_tick_delay_text || "--");
+      setText("tickSymbol", payload.latest_tick_symbol || "--");
+      setText("tickTime", payload.latest_tick_time || "--");
+      setText("tickPrice", payload.latest_tick_price || "--");
+      setText("tickIngest", payload.latest_tick_ingest_delay_ms >= 0 ? `${payload.latest_tick_ingest_delay_ms} ms` : "--");
+      setText("signalCount", payload.signal_total_count || 0);
+      setText("updatedAt", payload.updated_at || "--");
+
+      const latest = payload.latest_signal || null;
+      if (latest) {
+        setText("latestSignal", `${latest.symbol || "--"} | ${fmtStamp(latest.trading_day, latest.signal_time)} | ${latest.signal_price || "--"}`);
+      } else {
+        setText("latestSignal", "暂无信号");
+      }
+
+      const box = document.getElementById("signalList");
+      const rows = Array.isArray(payload.signals) ? payload.signals.slice().reverse().slice(0, 8) : [];
+      if (!rows.length) {
+        box.innerHTML = '<div class="empty">暂无最近信号。</div>';
+        return;
+      }
+      box.innerHTML = rows.map((row) => `
+        <div class="signal-item">
+          <div class="signal-head">
+            <div class="signal-code">${row.symbol || "--"} ${row.name || ""}</div>
+            <div class="signal-time">${fmtStamp(row.trading_day, row.signal_time)}</div>
+          </div>
+          <div class="signal-meta">
+            买点: ${row.signal_price || "--"}<br />
+            左1/左2: ${row.l1_time || "--"} / ${row.l2_time || "--"}<br />
+            右1/右2: ${row.r1_time || "--"} / ${row.r2_time || "--"}
+          </div>
+        </div>
+      `).join("");
+    }
+
+    async function refreshSnapshot() {
+      try {
+        const resp = await fetch(config.signalsUrl, { cache: "no-store" });
+        const data = await readJson(resp, "快照请求失败");
+        applySnapshot(data.data || {});
+      } catch (error) {
+        document.getElementById("statusDot").classList.remove("ok");
+        setText("statusText", `异常：${error.message || error}`);
+      }
+    }
+
+    function connectStream() {
+      if (!window.EventSource) {
+        setText("statusText", "浏览器不支持实时流");
+        return;
+      }
+      if (state.stream) {
+        try {
+          state.stream.close();
+        } catch (error) {
+          console.warn("stream_close_failed", error);
+        }
+      }
+      const es = new EventSource(config.streamUrl);
+      state.stream = es;
+
+      es.addEventListener("snapshot", (event) => {
+        try {
+          const payload = JSON.parse(event.data);
+          if (payload.ok && payload.data) {
+            applySnapshot(payload.data);
+          }
+        } catch (error) {
+          console.warn("stream_parse_failed", error);
+        }
+      });
+
+      es.onopen = () => {
+        document.getElementById("statusDot").classList.add("ok");
+        setText("statusText", "实时流在线");
+      };
+
+      es.onerror = () => {
+        document.getElementById("statusDot").classList.remove("ok");
+        setText("statusText", "正在重连...");
+        try {
+          es.close();
+        } catch (error) {
+          console.warn("stream_close_failed", error);
+        }
+        state.stream = null;
+        if (!state.reconnectTimer) {
+          state.reconnectTimer = window.setTimeout(() => {
+            state.reconnectTimer = 0;
+            connectStream();
+          }, 3000);
+        }
+      };
+    }
+
+    refreshSnapshot();
+    connectStream();
+    setInterval(refreshSnapshot, 5000);
+  </script>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>观澜量化 Web 控制台</title>
+    <link rel="stylesheet" href="/static/app.css?v=20260315_9" />
+  </head>
+  <body>
+    <div class="bg-shape bg-shape-a"></div>
+    <div class="bg-shape bg-shape-b"></div>
+
+    <header class="topbar glass">
+      <div class="brand">
+        <div class="dot"></div>
+        <div class="title-wrap">
+          <h1>量化 Web</h1>
+          <p>先观全局，再择买点</p>
+        </div>
+      </div>
+      <div class="runtime">
+        <span id="clickStatus" class="pill click-status">等待点击</span>
+        <span id="runtimeMode" class="pill">MODE</span>
+        <span id="runtimeClock" class="clock">--:--:--</span>
+      </div>
+    </header>
+
+    <section class="module-cards">
+      <a class="card-btn" href="/module/accounts">账户管理</a>
+      <a class="card-btn" href="/module/ai-settings">AI 配置</a>
+      <a class="card-btn" href="/module/portfolio-strategy">组合策略</a>
+      <a class="card-btn" href="/module/cta">CTA 策略</a>
+      <a class="card-btn" href="/module/script">脚本策略</a>
+      <a class="card-btn" href="/module/paper">模拟交易</a>
+      <a class="card-btn" href="/module/advisor">辅助交易</a>
+      <a class="card-btn" href="/module/chart">实时图表</a>
+      <a class="card-btn" href="/module/backtest">策略回测</a>
+      <a class="card-btn" href="/module/risk">风控管理</a>
+    </section>
+
+    <main class="layout">
+      <section id="panel-trading" class="panel glass trading-panel">
+        <div class="panel-header">
+          <h2>交易</h2>
+          <div class="actions">
+            <select id="envSelect"></select>
+            <button id="btnConnect" class="btn">连接</button>
+            <button id="btnDisconnect" class="btn ghost">断开</button>
+          </div>
+        </div>
+        <form id="orderForm" class="order-form">
+          <label>合约
+            <select id="symbolSelect"></select>
+          </label>
+          <label>交易所
+            <input id="exchangeInput" value="CFFEX" />
+          </label>
+          <label>方向
+            <select id="directionInput">
+              <option>多</option>
+              <option>空</option>
+            </select>
+          </label>
+          <label>开平
+            <select id="offsetInput">
+              <option>开</option>
+              <option>平</option>
+              <option>平今</option>
+              <option>平昨</option>
+            </select>
+          </label>
+          <label>类型
+            <select id="typeInput">
+              <option>限价</option>
+              <option>市价</option>
+            </select>
+          </label>
+          <label>价格
+            <input id="priceInput" type="number" step="0.01" value="0" />
+          </label>
+          <label>数量
+            <input id="volumeInput" type="number" min="1" step="1" value="1" />
+          </label>
+          <label>接口
+            <select id="gatewaySelect"></select>
+          </label>
+          <button class="btn submit" type="submit">委托</button>
+          <button id="btnCancelAll" class="btn danger" type="button">全撤</button>
+        </form>
+      </section>
+
+      <section id="panel-funds" class="panel glass funds-panel">
+        <div class="panel-header">
+          <h2>资金 / 盈亏</h2>
+          <div class="tabs">
+            <button class="tab active" data-tab="accounts">资金</button>
+            <button class="tab" data-tab="portfolio">盈亏</button>
+            <button class="tab" data-tab="risk">风控</button>
+          </div>
+        </div>
+        <div id="tab-accounts" class="tab-pane active"></div>
+        <div id="tab-portfolio" class="tab-pane"></div>
+        <div id="tab-risk" class="tab-pane"></div>
+      </section>
+
+      <section id="panel-ai" class="panel glass ai-panel">
+        <div class="panel-header">
+          <h2>AI 助手</h2>
+          <select id="aiModel">
+            <option>deepseek-chat</option>
+            <option>deepseek-reasoner</option>
+            <option>glm-4-plus</option>
+          </select>
+        </div>
+        <div id="aiChatBox" class="chat-box"></div>
+        <div class="chat-input">
+          <textarea id="aiInput" placeholder="输入问题，Enter发送，Shift+Enter换行"></textarea>
+          <button id="aiSend" class="btn submit">发送</button>
+        </div>
+      </section>
+
+      <section id="panel-logs" class="panel glass log-panel">
+        <div class="panel-header">
+          <h2>日志 / 持仓</h2>
+          <div class="tabs">
+            <button class="tab active" data-tab="logs">日志</button>
+            <button class="tab" data-tab="positions">持仓</button>
+          </div>
+        </div>
+        <div id="tab-logs" class="tab-pane active"></div>
+        <div id="tab-positions" class="tab-pane"></div>
+      </section>
+
+      <section id="panel-orders" class="panel glass orders-panel">
+        <div class="panel-header">
+          <h2>委托 / 成交</h2>
+          <div class="tabs">
+            <button class="tab active" data-tab="orders">委托</button>
+            <button class="tab" data-tab="trades">成交</button>
+          </div>
+        </div>
+        <div id="tab-orders" class="tab-pane active"></div>
+        <div id="tab-trades" class="tab-pane"></div>
+      </section>
+    </main>
+
+    <div id="toast" class="toast"></div>
+    <script src="/static/app.js?v=20260315_9"></script>
+  </body>
+</html>

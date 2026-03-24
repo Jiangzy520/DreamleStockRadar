@@ -1,0 +1,35 @@
+{
+  "updated_at": "",
+  "channels": {
+    "feishu": {
+      "enabled": false,
+      "webhook": "",
+      "events": [
+        "stock_signal",
+        "futures_signal",
+        "stock_trade_signal",
+        "futures_trade_signal"
+      ]
+    },
+    "dingtalk": {
+      "enabled": false,
+      "webhook": "",
+      "events": [
+        "stock_signal",
+        "futures_signal",
+        "stock_trade_signal",
+        "futures_trade_signal"
+      ]
+    },
+    "wecom": {
+      "enabled": false,
+      "webhook": "",
+      "events": [
+        "stock_signal",
+        "futures_signal",
+        "stock_trade_signal",
+        "futures_trade_signal"
+      ]
+    }
+  }
+}

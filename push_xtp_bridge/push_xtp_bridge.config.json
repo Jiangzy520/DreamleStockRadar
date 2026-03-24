@@ -1,0 +1,183 @@
+{
+  "remote": {
+    "transport": "http",
+    "host": "127.0.0.1",
+    "snapshot_url": "http://127.0.0.1:8790/api/realtime/signals?limit=0",
+    "basic_auth_username": "demo",
+    "basic_auth_password": "demo",
+    "poll_interval_seconds": 5,
+    "connect_timeout_seconds": 15,
+    "command_timeout_seconds": 20
+  },
+  "xtp": {
+    "connect_file": "./connect_xtp.demo.json",
+    "gateway_name": "XTP",
+    "client_id_override": 1
+  },
+  "order": {
+    "enabled": false,
+    "fixed_volume": 0,
+    "priority_fixed_volumes": {
+      "1": 0,
+      "2": 0,
+      "3": 0
+    },
+    "cash_per_order": 0,
+    "lot_size": 100,
+    "price_markup_bps": 0,
+    "max_single_order_volume": 0,
+    "max_signal_age_seconds": 300,
+    "max_orders_per_symbol_per_day": 0,
+    "daily_order_limit": 0,
+    "skip_if_has_position": true,
+    "require_same_trading_day": true,
+    "require_available_cash": false
+  },
+  "filters": {
+    "skip_star": true,
+    "skip_bj": true,
+    "skip_st": true,
+    "allow_weekdays": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "trading_sessions": [
+      "09:30-11:30",
+      "13:00-15:00"
+    ]
+  },
+  "state": {
+    "file": "./state/push_xtp_bridge_state.json",
+    "max_processed_keys": 200,
+    "max_trade_records": 200
+  },
+  "logging": {
+    "file": "./log/push_xtp_bridge.log",
+    "level": "INFO"
+  },
+  "buy": {
+    "stage_timeout_seconds": 0,
+    "price_markup_bps_steps": [
+      0
+    ]
+  },
+  "allocation": {
+    "enabled": false,
+    "capital_base": "available_cash",
+    "max_capital_base": 0,
+    "overlap_api_url": "http://127.0.0.1:8792/api/data",
+    "priority_weights": {
+      "3": 1,
+      "2": 1,
+      "1": 1
+    },
+    "priority_budget_factors": {
+      "3": 1.0,
+      "2": 1.0,
+      "1": 1.0
+    },
+    "min_source_count_to_trade": 2,
+    "allow_single_source_trades": false,
+    "source_endpoints": {
+      "alltick": "http://127.0.0.1:8768/api/realtime/signals?limit=0",
+      "eastmoney": "http://127.0.0.1:8790/api/realtime/signals?limit=0",
+      "pytdx": "http://127.0.0.1:8768/api/realtime/pytdx-backup/status"
+    },
+    "basic_auth_username": "demo",
+    "basic_auth_password": "demo"
+  },
+  "sell": {
+    "enabled": false,
+    "stop_loss_pct": 0.0,
+    "take_profit_pct": 0.0,
+    "max_hold_minutes": 0,
+    "stage_timeout_seconds": 0,
+    "price_markdown_bps_steps": [
+      0
+    ],
+    "earliest_sell_time": "09:35",
+    "single_weak_exit_time": "10:30",
+    "forced_exit_time": "14:50",
+    "tiers": {
+      "3": {},
+      "2": {},
+      "1": {}
+    }
+  },
+  "notifications": {
+    "dingtalk": {
+      "enabled": false,
+      "webhook": "",
+      "timeout_seconds": 5,
+      "at_all": false,
+      "title_prefix": "XTPBridge",
+      "loop_error_cooldown_seconds": 180,
+      "startup_retry": {
+        "enabled": false
+      },
+      "premarket_check": {
+        "enabled": false
+      },
+      "close_summary": {
+        "enabled": false
+      }
+    }
+  },
+  "signal_protocol": {
+    "version": "v1",
+    "require_ok_flag": true,
+    "ok_paths": [
+      "ok"
+    ],
+    "data_paths": [
+      "data"
+    ],
+    "signals_paths": [
+      "signals"
+    ],
+    "metadata_paths": {
+      "updated_at": [
+        "updated_at"
+      ],
+      "watchlist_count": [
+        "watchlist_count"
+      ],
+      "signal_total_count": [
+        "signal_total_count"
+      ]
+    },
+    "field_aliases": {
+      "key": [
+        "key"
+      ],
+      "symbol": [
+        "symbol",
+        "code"
+      ],
+      "name": [
+        "name"
+      ],
+      "trading_day": [
+        "trading_day",
+        "session_date"
+      ],
+      "signal_time": [
+        "signal_time",
+        "buy_time"
+      ],
+      "signal_price": [
+        "signal_price",
+        "buy_price"
+      ]
+    },
+    "required_fields": [
+      "symbol",
+      "trading_day",
+      "signal_time",
+      "signal_price"
+    ]
+  }
+}

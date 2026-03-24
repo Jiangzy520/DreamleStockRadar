@@ -1,0 +1,81 @@
+{
+  "remote": {
+    "transport": "http",
+    "host": "127.0.0.1",
+    "api_url": "http://127.0.0.1:8765/api/data",
+    "basic_auth_username": "demo",
+    "basic_auth_password": "demo",
+    "poll_interval_seconds": 5,
+    "connect_timeout_seconds": 15,
+    "command_timeout_seconds": 20
+  },
+  "tqsdk": {
+    "connect_file": "./connect_tq.json",
+    "connect_timeout_seconds": 10,
+    "reconnect_interval_seconds": 30,
+    "update_timeout_seconds": 0.3
+  },
+  "signal": {
+    "bootstrap_skip_existing": true,
+    "max_signal_age_seconds": 900
+  },
+  "order": {
+    "enabled": false,
+    "sizing_mode": "capital_ratio",
+    "strategy_cap_pct": 0.0,
+    "single_symbol_cap_pct": 0.0,
+    "fixed_volume": 0,
+    "max_volume_per_order": 0,
+    "default_margin_rate": 0.0,
+    "price_offset_ticks": 0,
+    "max_positions": 0,
+    "max_signals_per_symbol_per_day": 0,
+    "daily_order_limit": 0,
+    "skip_if_has_position": true
+  },
+  "exit": {
+    "enabled": false,
+    "max_hold_seconds": 0,
+    "stop_loss_pct": 0.0,
+    "take_profit_pct": 0.0,
+    "pending_exit_retry_seconds": 0
+  },
+  "filters": {
+    "allow_weekdays": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "trading_sessions": [
+      "09:00-11:30",
+      "13:30-15:00"
+    ],
+    "allowed_continuous_symbols": []
+  },
+  "contract_resolver": {
+    "selection": "open_interest",
+    "cache_ttl_seconds": 1800
+  },
+  "contract_mapping": {},
+  "state": {
+    "file": "./state/push_ctp_bridge_state.json",
+    "max_processed_keys": 200,
+    "max_trade_records": 200
+  },
+  "logging": {
+    "file": "./log/push_ctp_bridge.log",
+    "level": "INFO"
+  },
+  "notifications": {
+    "dingtalk": {
+      "enabled": false,
+      "webhook": "",
+      "timeout_seconds": 5,
+      "at_all": false,
+      "title_prefix": "CTPBridge",
+      "loop_error_cooldown_seconds": 180
+    }
+  }
+}

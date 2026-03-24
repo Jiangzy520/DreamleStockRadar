@@ -1,0 +1,2258 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>量化实时推送中心</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #08111d;
+        --bg-2: #0d1826;
+        --panel: rgba(12, 22, 35, 0.86);
+        --panel-strong: rgba(18, 31, 50, 0.96);
+        --line: rgba(122, 170, 228, 0.18);
+        --text: #eef5ff;
+        --muted: #8da2bc;
+        --cyan: #66ddff;
+        --cyan-2: #2da7ff;
+        --green: #74f0bd;
+        --amber: #ffd36f;
+        --pink: #ff7eca;
+        --danger: #ff6d8d;
+        --shadow: 0 22px 70px rgba(0, 0, 0, 0.34);
+        --radius: 18px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top left, rgba(54, 127, 242, 0.18), transparent 28%),
+          radial-gradient(circle at top right, rgba(173, 67, 255, 0.22), transparent 34%),
+          linear-gradient(180deg, #060c14 0%, #0a111c 48%, #070d15 100%);
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background:
+          linear-gradient(120deg, rgba(255, 255, 255, 0.03), transparent 36%),
+          repeating-linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.012) 0,
+            rgba(255, 255, 255, 0.012) 1px,
+            transparent 1px,
+            transparent 140px
+          );
+        opacity: 0.55;
+      }
+
+      .shell {
+        position: relative;
+        z-index: 1;
+        width: min(1680px, calc(100vw - 32px));
+        margin: 18px auto 28px;
+      }
+
+      .hero {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        background:
+          linear-gradient(135deg, rgba(16, 31, 49, 0.96), rgba(7, 16, 28, 0.92)),
+          linear-gradient(135deg, rgba(26, 112, 255, 0.1), rgba(210, 74, 255, 0.08));
+        box-shadow: var(--shadow);
+        padding: 28px 30px 26px;
+      }
+
+      .hero::after {
+        content: "";
+        position: absolute;
+        right: -60px;
+        top: -80px;
+        width: 300px;
+        height: 300px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(102, 221, 255, 0.22), transparent 66%);
+        filter: blur(6px);
+      }
+
+      .hero-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 18px;
+        align-items: flex-start;
+      }
+
+      .hero-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: #9cc9ff;
+      }
+
+      .hero-kicker::before {
+        content: "";
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+        background: linear-gradient(180deg, var(--cyan), #4daeff);
+        box-shadow: 0 0 18px rgba(102, 221, 255, 0.5);
+      }
+
+      .hero h1 {
+        margin: 14px 0 10px;
+        font-size: clamp(30px, 3.2vw, 44px);
+        line-height: 1.08;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+      }
+
+      .hero p {
+        margin: 0;
+        max-width: 920px;
+        color: var(--muted);
+        font-size: 15px;
+        line-height: 1.7;
+      }
+
+      .status-cluster {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .status-pill {
+        padding: 10px 14px;
+        border-radius: 999px;
+        border: 1px solid rgba(113, 158, 217, 0.16);
+        background: rgba(10, 21, 34, 0.58);
+        color: #d3e6ff;
+        font-size: 13px;
+        white-space: nowrap;
+      }
+
+      .metrics {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(150px, 1fr));
+        gap: 14px;
+        margin-top: 24px;
+      }
+
+      .metric {
+        position: relative;
+        overflow: hidden;
+        border-radius: var(--radius);
+        border: 1px solid var(--line);
+        background: linear-gradient(180deg, rgba(15, 26, 41, 0.92), rgba(10, 18, 29, 0.95));
+        padding: 16px 16px 18px;
+      }
+
+      .metric::before {
+        content: "";
+        position: absolute;
+        inset: 0 auto auto 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(90deg, var(--cyan), transparent 70%);
+        opacity: 0.95;
+      }
+
+      .metric-label {
+        color: var(--muted);
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .metric-value {
+        margin-top: 10px;
+        font-size: 30px;
+        font-weight: 800;
+        letter-spacing: -0.04em;
+        color: #f8fbff;
+      }
+
+      .metric-sub {
+        margin-top: 6px;
+        font-size: 12px;
+        color: #84c9ff;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1.45fr 1fr;
+        gap: 18px;
+        margin-top: 18px;
+      }
+
+      .panel {
+        border-radius: 22px;
+        border: 1px solid var(--line);
+        background: var(--panel);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+
+      .panel-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 18px 20px;
+        border-bottom: 1px solid rgba(111, 151, 204, 0.12);
+        background: linear-gradient(180deg, rgba(22, 34, 52, 0.92), rgba(11, 20, 31, 0.9));
+      }
+
+      .panel-title {
+        font-size: 20px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+      }
+
+      .panel-note {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .toolbar {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .table-head-actions {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 10px;
+      }
+
+      .day-pager {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+      }
+
+      .day-pill {
+        border: 1px solid rgba(117, 167, 227, 0.18);
+        border-radius: 999px;
+        background: rgba(7, 15, 24, 0.76);
+        color: #9fc4ea;
+        font-size: 12px;
+        line-height: 1;
+        padding: 9px 14px;
+        cursor: pointer;
+        transition: 180ms ease;
+      }
+
+      .day-pill:hover {
+        border-color: rgba(102, 221, 255, 0.34);
+        color: #eaf6ff;
+        background: rgba(12, 27, 42, 0.92);
+      }
+
+      .day-pill.active {
+        color: #ffffff;
+        border-color: rgba(123, 185, 255, 0.38);
+        background: linear-gradient(135deg, rgba(30, 155, 255, 0.22), rgba(78, 98, 255, 0.18));
+        box-shadow: inset 0 0 0 1px rgba(123, 185, 255, 0.12);
+      }
+
+      .pager-meta {
+        color: var(--muted);
+        font-size: 12px;
+        text-align: right;
+      }
+
+      .toolbar input,
+      .toolbar select,
+      .toolbar button {
+        border: 1px solid rgba(117, 167, 227, 0.18);
+        border-radius: 12px;
+        background: rgba(7, 15, 24, 0.76);
+        color: var(--text);
+        font-size: 13px;
+        padding: 10px 14px;
+      }
+
+      .toolbar input {
+        min-width: 240px;
+        outline: none;
+      }
+
+      .toolbar input::placeholder {
+        color: #7f96b3;
+      }
+
+      .toolbar button {
+        cursor: pointer;
+        font-weight: 700;
+        transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+      }
+
+      .toolbar button:hover {
+        transform: translateY(-1px);
+        border-color: rgba(102, 221, 255, 0.34);
+        background: rgba(12, 27, 42, 0.92);
+      }
+
+      .toolbar button.primary {
+        background: linear-gradient(135deg, rgba(30, 155, 255, 0.9), rgba(78, 98, 255, 0.92));
+        border-color: rgba(123, 185, 255, 0.32);
+      }
+
+      .overview {
+        padding: 18px 20px 14px;
+      }
+
+      .overview-strip {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: 14px;
+      }
+
+      .story-card,
+      .snapshot-card {
+        min-height: 228px;
+        border-radius: 18px;
+        border: 1px solid rgba(110, 162, 233, 0.15);
+        background: linear-gradient(180deg, rgba(13, 23, 36, 0.94), rgba(8, 15, 24, 0.96));
+        padding: 18px;
+      }
+
+      .story-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .story-title strong {
+        font-size: 18px;
+      }
+
+      .story-grid {
+        margin-top: 14px;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .mini-stat {
+        border-radius: 16px;
+        padding: 14px;
+        background: rgba(17, 29, 45, 0.88);
+        border: 1px solid rgba(110, 162, 233, 0.11);
+      }
+
+      .mini-stat span {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .mini-stat strong {
+        display: block;
+        margin-top: 8px;
+        font-size: 22px;
+      }
+
+      .inline-log-card {
+        margin-top: 14px;
+        border-radius: 18px;
+        border: 1px solid rgba(110, 162, 233, 0.15);
+        background: linear-gradient(180deg, rgba(13, 23, 36, 0.94), rgba(8, 15, 24, 0.96));
+        padding: 18px;
+      }
+
+      .feed {
+        margin-top: 16px;
+        display: grid;
+        gap: 10px;
+      }
+
+      .feed-item {
+        border-radius: 14px;
+        padding: 13px 14px;
+        background: rgba(14, 24, 38, 0.9);
+        border: 1px solid rgba(111, 151, 204, 0.12);
+      }
+
+      .feed-item.fresh {
+        border-color: rgba(102, 221, 255, 0.4);
+        box-shadow: inset 0 0 0 1px rgba(102, 221, 255, 0.12);
+      }
+
+      .feed-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 8px;
+      }
+
+      .feed-code {
+        font-weight: 800;
+        color: #f6fbff;
+      }
+
+      .feed-name {
+        color: var(--muted);
+        margin-left: 8px;
+      }
+
+      .feed-time {
+        color: var(--cyan);
+        font-weight: 700;
+        white-space: nowrap;
+      }
+
+      .feed-line {
+        font-size: 13px;
+        color: #bfd7ef;
+      }
+
+      .snapshot-frame {
+        margin-top: 12px;
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid rgba(112, 155, 218, 0.16);
+        background: #07111b;
+        min-height: 320px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .snapshot-frame img {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+
+      .snapshot-empty {
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .snapshot-date {
+        margin-top: 10px;
+        color: #9ec4ef;
+        font-size: 13px;
+      }
+
+      .editor-card {
+        margin-top: 14px;
+        border-radius: 18px;
+        border: 1px solid rgba(110, 162, 233, 0.15);
+        background: linear-gradient(180deg, rgba(13, 23, 36, 0.94), rgba(8, 15, 24, 0.96));
+        padding: 18px;
+      }
+
+      .editor-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 14px;
+      }
+
+      .editor-toolbar button {
+        border: 1px solid rgba(117, 167, 227, 0.18);
+        border-radius: 12px;
+        background: rgba(7, 15, 24, 0.76);
+        color: var(--text);
+        font-size: 13px;
+        padding: 10px 14px;
+        cursor: pointer;
+        font-weight: 700;
+        transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+      }
+
+      .editor-toolbar button:hover {
+        transform: translateY(-1px);
+        border-color: rgba(102, 221, 255, 0.34);
+        background: rgba(12, 27, 42, 0.92);
+      }
+
+      .editor-toolbar button.primary {
+        background: linear-gradient(135deg, rgba(30, 155, 255, 0.9), rgba(78, 98, 255, 0.92));
+        border-color: rgba(123, 185, 255, 0.32);
+      }
+
+      .editor-toolbar button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .watchlist-textarea {
+        width: 100%;
+        min-height: 220px;
+        margin-top: 14px;
+        border-radius: 16px;
+        border: 1px solid rgba(112, 155, 218, 0.16);
+        background: #07111b;
+        color: #d9ebff;
+        padding: 14px 16px;
+        font-size: 13px;
+        line-height: 1.65;
+        resize: vertical;
+        outline: none;
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      }
+
+      .watchlist-textarea::placeholder {
+        color: #7290b3;
+      }
+
+      .editor-help {
+        margin-top: 10px;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.7;
+      }
+
+      .upload-row {
+        margin-top: 14px;
+        display: grid;
+        gap: 10px;
+      }
+
+      .dropzone {
+        position: relative;
+        display: grid;
+        gap: 10px;
+        padding: 16px;
+        border: 1px dashed rgba(117, 167, 227, 0.22);
+        border-radius: 16px;
+        background: rgba(7, 15, 24, 0.76);
+        transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+      }
+
+      .dropzone.active {
+        border-color: rgba(102, 221, 255, 0.46);
+        background: rgba(10, 24, 38, 0.92);
+        box-shadow: inset 0 0 0 1px rgba(102, 221, 255, 0.14);
+      }
+
+      .dropzone-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: #e9f5ff;
+      }
+
+      .dropzone-sub {
+        color: #9ec4ef;
+        font-size: 12px;
+        line-height: 1.7;
+      }
+
+      .upload-row input[type="file"] {
+        width: 100%;
+        border: 1px dashed rgba(117, 167, 227, 0.18);
+        border-radius: 14px;
+        background: rgba(4, 11, 18, 0.46);
+        color: var(--muted);
+        font-size: 13px;
+        padding: 12px 14px;
+      }
+
+      .upload-meta {
+        color: #9ec4ef;
+        font-size: 12px;
+        line-height: 1.7;
+      }
+
+      .push-ribbon {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        margin-top: 22px;
+        padding: 14px 16px;
+        border-radius: 18px;
+        border: 1px solid rgba(116, 169, 235, 0.18);
+        background: linear-gradient(135deg, rgba(11, 21, 34, 0.92), rgba(18, 34, 53, 0.94));
+      }
+
+      .push-ribbon-main {
+        min-width: 0;
+      }
+
+      .push-ribbon-title {
+        font-size: 12px;
+        color: #87bfff;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .push-ribbon-text {
+        margin-top: 8px;
+        font-size: 18px;
+        font-weight: 800;
+        color: #f6fbff;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .push-ribbon-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .push-ribbon-actions button {
+        border: 1px solid rgba(117, 167, 227, 0.18);
+        border-radius: 12px;
+        background: rgba(7, 15, 24, 0.76);
+        color: var(--text);
+        font-size: 13px;
+        padding: 10px 14px;
+        cursor: pointer;
+        font-weight: 700;
+      }
+
+      .push-ribbon-actions button.primary {
+        background: linear-gradient(135deg, rgba(30, 155, 255, 0.9), rgba(78, 98, 255, 0.92));
+        border-color: rgba(123, 185, 255, 0.32);
+      }
+
+      .push-ribbon-note {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .table-panel {
+        margin-top: 18px;
+      }
+
+      .table-wrap {
+        overflow: auto;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 1320px;
+      }
+
+      thead th {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        text-align: left;
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #97afc9;
+        background: rgba(16, 27, 41, 0.97);
+        border-bottom: 1px solid rgba(108, 147, 199, 0.18);
+        padding: 14px 14px;
+      }
+
+      tbody td {
+        border-bottom: 1px solid rgba(100, 136, 184, 0.12);
+        padding: 14px;
+        font-size: 13px;
+        color: #edf4fd;
+        white-space: nowrap;
+      }
+
+      tbody tr:nth-child(2n) td {
+        background: rgba(13, 20, 31, 0.56);
+      }
+
+      tbody tr.new-row td {
+        background: linear-gradient(90deg, rgba(24, 60, 90, 0.9), rgba(14, 23, 36, 0.72));
+      }
+
+      .signal-code {
+        font-weight: 800;
+        color: #ffffff;
+      }
+
+      .signal-name {
+        color: var(--muted);
+      }
+
+      .pair {
+        color: #a9c6e9;
+      }
+
+      .buy-time {
+        color: var(--cyan);
+        font-weight: 700;
+      }
+
+      .buy-price {
+        color: var(--green);
+        font-weight: 800;
+      }
+
+      .footer-note {
+        padding: 14px 20px 18px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .log-stats {
+        margin-bottom: 14px;
+      }
+
+      .log-terminal {
+        margin-top: 14px;
+        border-radius: 16px;
+        border: 1px solid rgba(111, 151, 204, 0.14);
+        background: #050d17;
+        min-height: 360px;
+        max-height: 560px;
+        overflow: auto;
+      }
+
+      .log-terminal pre {
+        margin: 0;
+        padding: 16px 18px;
+        color: #cfe2f6;
+        font-size: 12px;
+        line-height: 1.55;
+        white-space: pre-wrap;
+        word-break: break-word;
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      }
+
+      .running {
+        color: var(--green);
+      }
+
+      .waiting {
+        color: var(--amber);
+      }
+
+      .stopped {
+        color: var(--danger);
+      }
+
+      .alert-dock {
+        position: fixed;
+        right: 20px;
+        bottom: 20px;
+        z-index: 30;
+        width: min(420px, calc(100vw - 24px));
+        display: grid;
+        gap: 10px;
+      }
+
+      .alert-card {
+        border-radius: 16px;
+        border: 1px solid rgba(112, 188, 255, 0.28);
+        background: linear-gradient(135deg, rgba(7, 18, 28, 0.96), rgba(18, 33, 52, 0.96));
+        box-shadow: 0 18px 42px rgba(0, 0, 0, 0.42);
+        padding: 14px 16px;
+        animation: alert-in 0.28s ease;
+      }
+
+      .alert-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 8px;
+      }
+
+      .alert-title {
+        font-size: 12px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #86caff;
+      }
+
+      .alert-push-time {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .alert-code {
+        font-size: 21px;
+        font-weight: 800;
+        color: #ffffff;
+      }
+
+      .alert-name {
+        margin-left: 8px;
+        font-size: 15px;
+        color: #cde0f8;
+      }
+
+      .alert-detail {
+        margin-top: 8px;
+        font-size: 13px;
+        line-height: 1.7;
+        color: #d7e8fb;
+      }
+
+      @keyframes alert-in {
+        from {
+          opacity: 0;
+          transform: translateY(12px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 1280px) {
+        .metrics {
+          grid-template-columns: repeat(3, minmax(140px, 1fr));
+        }
+
+        .grid,
+        .overview-strip {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 720px) {
+        .shell {
+          width: min(100vw - 14px, 100%);
+          margin: 8px auto 18px;
+        }
+
+        .hero {
+          padding: 20px 16px;
+          border-radius: 22px;
+        }
+
+        .hero-top,
+        .panel-head,
+        .push-ribbon {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .table-head-actions,
+        .pager-meta {
+          width: 100%;
+          align-items: flex-start;
+          text-align: left;
+        }
+
+        .status-cluster,
+        .toolbar,
+        .day-pager,
+        .push-ribbon-actions {
+          width: 100%;
+        }
+
+        .metrics {
+          grid-template-columns: repeat(2, minmax(130px, 1fr));
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <section class="hero">
+        <div class="hero-top">
+          <div>
+            <div class="hero-kicker">Realtime Strategy Center</div>
+            <h1>服务器实时推送中心</h1>
+            <p>
+              AllTick 多 API 持续扫描自选池，实时输出左1 / 左2 / 右1 / 右2 / 确认买入时间。
+              页面每秒刷新，支持一键生成推送图，适合放服务器长期运行后通过网页直接查看。
+            </p>
+          </div>
+          <div class="status-cluster">
+            <div class="status-pill" id="heroMode">推送状态：连接中</div>
+            <div class="status-pill" id="heroUpdated">最后刷新：--:--:--</div>
+            <div class="status-pill" id="heroImage">推送图：未生成</div>
+            <div class="status-pill" id="heroApiExpire">API到期：计算中</div>
+          </div>
+        </div>
+
+        <div class="metrics">
+          <div class="metric">
+            <div class="metric-label">自选池总数</div>
+            <div class="metric-value" id="mWatch">-</div>
+            <div class="metric-sub" id="mWatchSub">股票池实时监控</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">API 总数</div>
+            <div class="metric-value" id="mApiTotal">-</div>
+            <div class="metric-sub" id="mApiTotalSub">当前可调用配额</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">已分配 API</div>
+            <div class="metric-value" id="mApiUsed">-</div>
+            <div class="metric-sub">1 对 1 / 多对 1 分配结果</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">剩余 API</div>
+            <div class="metric-value" id="mApiRemain">-</div>
+            <div class="metric-sub">可继续扩容自选池</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">累计信号</div>
+            <div class="metric-value" id="mSignal">-</div>
+            <div class="metric-sub">今日累计买入触发</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">API 到期倒计时</div>
+            <div class="metric-value" id="mApiExpire">--</div>
+            <div class="metric-sub" id="mApiExpireSub">按当前 API 批次导入时间推算</div>
+          </div>
+        </div>
+
+        <div class="push-ribbon">
+          <div class="push-ribbon-main">
+            <div class="push-ribbon-title">即时推送</div>
+            <div class="push-ribbon-text" id="liveAlertText">等待第一条新信号，打开页面后将自动接收新股票提示。</div>
+          </div>
+          <div class="push-ribbon-actions">
+            <button class="primary" id="enableSoundBtn" type="button">开启提示音</button>
+            <button id="enableDesktopBtn" type="button">桌面通知</button>
+            <div class="push-ribbon-note" id="audioState">提示音未开启，首次建议点一次按钮</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="grid">
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title">信号快照</div>
+              <div class="panel-note" id="subLine">正在连接推送接口...</div>
+            </div>
+          </div>
+          <div class="overview">
+            <div class="overview-strip">
+              <div class="story-card">
+                <div class="story-title">
+                  <strong>扫描总览</strong>
+                  <span class="panel-note" id="scanSummary">等待数据</span>
+                </div>
+                <div class="story-grid">
+                  <div class="mini-stat">
+                    <span>已扫描股票</span>
+                    <strong id="assignedSymbols">-</strong>
+                  </div>
+                  <div class="mini-stat">
+                    <span>近端展示信号</span>
+                    <strong id="visibleSignals">-</strong>
+                  </div>
+                  <div class="mini-stat">
+                    <span>实时推送状态</span>
+                    <strong id="streamStatus">连接中</strong>
+                  </div>
+                  <div class="mini-stat">
+                    <span>图片更新时间</span>
+                    <strong id="imageGeneratedAt">未生成</strong>
+                  </div>
+                </div>
+              </div>
+              <div class="story-card">
+                <div class="story-title">
+                  <strong>最新信号流</strong>
+                  <span class="panel-note">最近 6 条</span>
+                </div>
+                <div class="feed" id="feedList"></div>
+              </div>
+            </div>
+            <div class="inline-log-card">
+              <div class="story-title">
+                <strong>脚本日志</strong>
+                <span class="panel-note" id="logPanelNote">正在读取扫描脚本日志...</span>
+              </div>
+              <div class="story-grid log-stats">
+                <div class="mini-stat">
+                  <span>扫描状态</span>
+                  <strong id="scanRunState">-</strong>
+                </div>
+                <div class="mini-stat">
+                  <span>自动预启动</span>
+                  <strong id="autoStartState">-</strong>
+                </div>
+                <div class="mini-stat">
+                  <span>启动倒计时</span>
+                  <strong id="autoStartCountdown">-</strong>
+                </div>
+                <div class="mini-stat">
+                  <span>下次自动启动</span>
+                  <strong id="autoStartNext">-</strong>
+                </div>
+                <div class="mini-stat">
+                  <span>扫描日志更新时间</span>
+                  <strong id="logScanUpdated">-</strong>
+                </div>
+                <div class="mini-stat">
+                  <span>信号文件更新时间</span>
+                  <strong id="logSignalUpdated">-</strong>
+                </div>
+                <div class="mini-stat">
+                  <span>最新一条日志</span>
+                  <strong id="logLatest">-</strong>
+                </div>
+              </div>
+              <div class="log-terminal">
+                <pre id="scanLogView">等待加载脚本日志...</pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title">推送图生成</div>
+              <div class="panel-note">服务器直接生成 PNG，用于发群、发朋友圈或网页嵌入</div>
+            </div>
+            <div class="toolbar">
+              <select id="imageRows">
+                <option value="12">12 条</option>
+                <option value="24" selected>24 条</option>
+                <option value="36">36 条</option>
+                <option value="60">60 条</option>
+              </select>
+              <button class="primary" id="generateImageBtn" type="button">生成推送图</button>
+              <button id="refreshImageBtn" type="button">刷新预览</button>
+            </div>
+          </div>
+          <div class="overview">
+            <div class="snapshot-card">
+              <div class="story-title">
+                <strong>图片预览</strong>
+                <span class="panel-note" id="imageMeta">等待生成</span>
+              </div>
+              <div class="snapshot-frame" id="snapshotFrame">
+                <div class="snapshot-empty">当前还没有推送图，点击右上角按钮生成。</div>
+              </div>
+              <div class="snapshot-date" id="snapshotDateNote">今日日期：--</div>
+            </div>
+            <div class="editor-card">
+              <div class="story-title">
+                <strong>今日日期与自选代码</strong>
+                <span class="panel-note" id="watchlistMeta">正在读取自选池...</span>
+              </div>
+              <div class="story-grid">
+                <div class="mini-stat">
+                  <span>今天日期</span>
+                  <strong id="watchlistToday">-</strong>
+                </div>
+                <div class="mini-stat">
+                  <span>明天池子日期</span>
+                  <strong id="watchlistNextDay">-</strong>
+                </div>
+                <div class="mini-stat">
+                  <span>当前自选数量</span>
+                  <strong id="watchlistCountCard">-</strong>
+                </div>
+                <div class="mini-stat">
+                  <span>自选文件更新时间</span>
+                  <strong id="watchlistUpdatedAt">-</strong>
+                </div>
+                <div class="mini-stat">
+                  <span>最近备份</span>
+                  <strong id="watchlistBackupAt">-</strong>
+                </div>
+                <div class="mini-stat">
+                  <span>明天分配结果</span>
+                  <strong id="watchlistAssignMeta">-</strong>
+                </div>
+              </div>
+              <div class="upload-row">
+                <div class="dropzone" id="watchlistDropzone">
+                  <div class="dropzone-title">支持批量拖入股票截图</div>
+                  <div class="dropzone-sub" id="watchlistDropMeta">把多张图片直接拖到这里，或点击下面选择文件。当前未选择任何截图。</div>
+                  <input id="watchlistImageInput" type="file" accept="image/*" multiple />
+                </div>
+                <div class="editor-toolbar">
+                  <button id="extractWatchlistImagesBtn" type="button">从多张图片提取代码</button>
+                  <span class="upload-meta" id="watchlistOcrMeta">支持多张截图，自动提取 6 位股票代码、去重、排序后直接替换成新的自选池。</span>
+                </div>
+              </div>
+              <div class="editor-toolbar">
+                <button id="reloadWatchlistBtn" type="button">读取当前自选</button>
+                <button id="backupWatchlistBtn" type="button">保存当前备份</button>
+                <button class="primary" id="saveWatchlistBtn" type="button">写入明天池子并重新分配</button>
+              </div>
+              <textarea
+                class="watchlist-textarea"
+                id="watchlistTextarea"
+                placeholder="支持粘贴 6 位股票代码或完整 symbol，一行一个，也支持逗号分隔。"
+              ></textarea>
+              <div class="editor-help" id="watchlistHelp">
+                上传截图后，系统会先自动备份旧自选池，再覆盖写入新的 `watchlist.csv` 和 `stock_assignments.csv`。
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel table-panel">
+        <div class="panel-head">
+          <div>
+            <div class="panel-title">完整信号表</div>
+            <div class="panel-note">支持秒级时间显示，最新信号固定在最上方</div>
+          </div>
+          <div class="table-head-actions">
+            <div class="toolbar">
+              <input id="signalSearchInput" type="text" placeholder="搜索代码 / 名称 / 买入时间..." />
+              <button id="refreshNowBtn" type="button">立即刷新</button>
+            </div>
+            <div class="day-pager" id="signalDayPager"></div>
+            <div class="pager-meta" id="signalPageMeta">当前第 0 / 0 页</div>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>推送时间</th>
+                <th>股票代码</th>
+                <th>股票名称</th>
+                <th>左1</th>
+                <th>左2</th>
+                <th>右1</th>
+                <th>右2</th>
+                <th>确认买入时间</th>
+                <th>买入价格</th>
+                <th>交易日</th>
+              </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+        <div class="footer-note" id="footerNote">页面每 1 秒自动同步一次。图片预览默认只在生成后更新。</div>
+      </section>
+
+    </div>
+
+    <div class="alert-dock" id="alertDock"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <script>
+      const state = {
+        knownKeys: new Set(),
+        flashKeys: new Set(),
+        pushTimes: new Map(),
+        imageUrl: "",
+        pushInitialized: false,
+        lastSignalKey: "",
+        lastSnapshot: null,
+        searchQuery: "",
+        autoStartCountdownSeconds: -1,
+        apiExpiryCountdownSeconds: -1,
+        stream: null,
+        streamReconnectTimer: 0,
+        audioContext: null,
+        soundEnabled: false,
+        desktopEnabled: typeof Notification !== "undefined" && Notification.permission === "granted",
+        selectedTradingDay: "",
+        watchlistFiles: [],
+      };
+
+      function localDateText(dateValue = new Date()) {
+        const year = dateValue.getFullYear();
+        const month = String(dateValue.getMonth() + 1).padStart(2, "0");
+        const day = String(dateValue.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+      }
+
+      function nowFullStamp() {
+        const dateValue = new Date();
+        return `${localDateText(dateValue)} ${String(dateValue.getHours()).padStart(2, "0")}:${String(dateValue.getMinutes()).padStart(2, "0")}:${String(dateValue.getSeconds()).padStart(2, "0")}`;
+      }
+
+      function hms(value) {
+        const text = String(value || "").trim();
+        if (!text) return "--:--:--";
+        const token = text.split(" ").pop().split(".")[0];
+        if (/^\d{2}:\d{2}:\d{2}$/.test(token)) return token;
+        if (/^\d{2}:\d{2}$/.test(token)) return `${token}:00`;
+        return token;
+      }
+
+      function fullStamp(day, timeText) {
+        const dayText = String(day || "").trim();
+        const timeValue = String(timeText || "").trim().split(".")[0];
+        if (/^\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}$/.test(timeValue)) {
+          return `${timeValue}:00`;
+        }
+        if (/^\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}$/.test(timeValue)) {
+          return timeValue;
+        }
+        if (dayText && timeValue) return `${dayText} ${timeValue}`;
+        return dayText || timeValue || "--";
+      }
+
+      function tradingDayValue(row) {
+        const raw = String(row?.trading_day || "").trim();
+        return raw || "未标记";
+      }
+
+      function tradingDayLabel(dayText) {
+        const raw = String(dayText || "").trim();
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+          return raw || "未标记";
+        }
+        const todayText = localDateText();
+        const base = new Date(`${raw}T00:00:00`);
+        const today = new Date(`${todayText}T00:00:00`);
+        const diffDays = Math.round((base.getTime() - today.getTime()) / 86400000);
+        if (diffDays === 0) return `今天 ${raw}`;
+        if (diffDays === 1) return `明天 ${raw}`;
+        if (diffDays === -1) return `昨天 ${raw}`;
+        return raw;
+      }
+
+      function buildTradingDayPages(rows) {
+        const counts = new Map();
+        for (const row of rows) {
+          const day = tradingDayValue(row);
+          counts.set(day, (counts.get(day) || 0) + 1);
+        }
+        return [...counts.entries()]
+          .sort((left, right) => String(right[0]).localeCompare(String(left[0])))
+          .map(([day, count], index) => ({
+            day,
+            count,
+            index: index + 1,
+            label: tradingDayLabel(day),
+          }));
+      }
+
+      function ensureSelectedTradingDay(pages) {
+        if (!pages.length) {
+          state.selectedTradingDay = "";
+          return "";
+        }
+        const exists = pages.some((page) => page.day === state.selectedTradingDay);
+        if (!exists) {
+          state.selectedTradingDay = pages[0].day;
+        }
+        return state.selectedTradingDay;
+      }
+
+      function renderTradingDayPager(pages) {
+        const holder = document.getElementById("signalDayPager");
+        const meta = document.getElementById("signalPageMeta");
+        holder.innerHTML = "";
+        if (!pages.length) {
+          meta.textContent = "当前第 0 / 0 页";
+          return;
+        }
+        const currentDay = ensureSelectedTradingDay(pages);
+        const currentIndex = pages.findIndex((page) => page.day === currentDay);
+        const currentPage = pages[Math.max(currentIndex, 0)];
+        meta.textContent = `当前第 ${currentIndex + 1} / ${pages.length} 页 · ${currentPage.label} · ${currentPage.count} 条`;
+        for (const page of pages) {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = `day-pill${page.day === currentDay ? " active" : ""}`;
+          button.dataset.day = page.day;
+          button.textContent = `第${page.index}页 ${page.label}`;
+          holder.appendChild(button);
+        }
+      }
+
+      function pushStamp(row, updatedAt) {
+        const cached = String(state.pushTimes.get(signalKey(row)) || "").trim();
+        if (cached) {
+          return fullStamp(row.trading_day, cached);
+        }
+        return fullStamp(row.trading_day, updatedAt || row.signal_time);
+      }
+
+      function pairTimePrice(timeValue, priceValue) {
+        const left = hms(timeValue);
+        const right = String(priceValue || "").trim() || "--";
+        return `${left}@${right}`;
+      }
+
+      function formatCountdownSeconds(rawValue) {
+        const value = Number(rawValue);
+        if (!Number.isFinite(value) || value < 0) {
+          return "未开启";
+        }
+        if (value <= 0) {
+          return "已到期";
+        }
+        const days = Math.floor(value / 86400);
+        const hours = Math.floor((value % 86400) / 3600);
+        const minutes = Math.floor((value % 3600) / 60);
+        const seconds = value % 60;
+        const clock = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+        return days > 0 ? `${days}天 ${clock}` : clock;
+      }
+
+      function filterRows(rows) {
+        const keyword = String(state.searchQuery || "").trim().toLowerCase();
+        if (!keyword) {
+          return rows;
+        }
+        return rows.filter((row) => {
+          const fields = [
+            row.symbol,
+            row.name,
+            row.trading_day,
+            row.signal_time,
+            row.signal_price,
+            row.l1_time,
+            row.l2_time,
+            row.r1_time,
+            row.r2_time,
+          ];
+          return fields.some((value) => String(value || "").toLowerCase().includes(keyword));
+        });
+      }
+
+      function spokenTime(value) {
+        const token = hms(value);
+        const [hh, mm, ss] = token.split(":");
+        if (!hh || !mm || !ss) {
+          return token;
+        }
+        return `${hh}点${mm}分${ss}秒`;
+      }
+
+      function setText(id, text) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = text;
+      }
+
+      function signalKey(row) {
+        return row.key || `${row.symbol || ""}|${row.trading_day || ""}|${row.signal_time || ""}`;
+      }
+
+      function nowHms() {
+        return new Date().toLocaleTimeString("zh-CN", { hour12: false });
+      }
+
+      function summarizeWatchlistFiles(files) {
+        if (!files.length) {
+          return "当前未选择任何截图。";
+        }
+        const names = files.slice(0, 3).map((file) => file.name).join("，");
+        const extra = files.length > 3 ? ` 等 ${files.length} 张` : ` 共 ${files.length} 张`;
+        return `已选择 ${names}${extra}`;
+      }
+
+      function setWatchlistFiles(filesLike) {
+        const files = Array.from(filesLike || []).filter((file) => String(file.type || "").startsWith("image/"));
+        state.watchlistFiles = files;
+        const input = document.getElementById("watchlistImageInput");
+        const dropMeta = document.getElementById("watchlistDropMeta");
+        if (dropMeta) {
+          dropMeta.textContent = files.length
+            ? `已载入 ${files.length} 张截图，可直接点击“从多张图片提取代码”。${summarizeWatchlistFiles(files)}`
+            : "把多张图片直接拖到这里，或点击下面选择文件。当前未选择任何截图。";
+        }
+        if (input) {
+          if (!files.length) {
+            input.value = "";
+          } else {
+            try {
+              const transfer = new DataTransfer();
+              for (const file of files) {
+                transfer.items.add(file);
+              }
+              input.files = transfer.files;
+            } catch (error) {
+              console.warn("sync_watchlist_input_failed", error);
+            }
+          }
+        }
+        return files;
+      }
+
+      function getWatchlistFiles() {
+        if (state.watchlistFiles.length) {
+          return state.watchlistFiles;
+        }
+        const input = document.getElementById("watchlistImageInput");
+        return Array.from(input?.files || []).filter((file) => String(file.type || "").startsWith("image/"));
+      }
+
+      function renderFeed(rows) {
+        const holder = document.getElementById("feedList");
+        holder.innerHTML = "";
+        const recent = rows.slice(0, 6);
+        if (!recent.length) {
+          holder.innerHTML = `<div class="feed-item"><div class="feed-line">暂无实时信号</div></div>`;
+          return;
+        }
+        for (const row of recent) {
+          const key = signalKey(row);
+          const item = document.createElement("div");
+          item.className = `feed-item${state.flashKeys.has(key) ? " fresh" : ""}`;
+          item.innerHTML = `
+            <div class="feed-top">
+              <div>
+                <span class="feed-code">${row.symbol || "-"}</span>
+                <span class="feed-name">${row.name || ""}</span>
+              </div>
+              <div class="feed-time">${fullStamp(row.trading_day, row.signal_time)}</div>
+            </div>
+            <div class="feed-line">
+              左1 ${pairTimePrice(row.l1_time, row.l1_price)} ｜ 左2 ${pairTimePrice(row.l2_time, row.l2_price)}
+            </div>
+            <div class="feed-line">
+              右1 ${pairTimePrice(row.r1_time, row.r1_price)} ｜ 右2 ${pairTimePrice(row.r2_time, row.r2_price)} ｜ 买入 ${row.signal_price || "--"}
+            </div>
+          `;
+          holder.appendChild(item);
+        }
+      }
+
+      function renderTable(rows, updatedAt) {
+        const tbody = document.getElementById("tbody");
+        tbody.innerHTML = "";
+        for (const row of rows) {
+          const key = signalKey(row);
+          const tr = document.createElement("tr");
+          if (state.flashKeys.has(key)) {
+            tr.classList.add("new-row");
+          }
+          tr.innerHTML = `
+            <td>${pushStamp(row, updatedAt)}</td>
+            <td class="signal-code">${row.symbol || "-"}</td>
+            <td class="signal-name">${row.name || "-"}</td>
+            <td class="pair">${pairTimePrice(row.l1_time, row.l1_price)}</td>
+            <td class="pair">${pairTimePrice(row.l2_time, row.l2_price)}</td>
+            <td class="pair">${pairTimePrice(row.r1_time, row.r1_price)}</td>
+            <td class="pair">${pairTimePrice(row.r2_time, row.r2_price)}</td>
+            <td class="buy-time">${fullStamp(row.trading_day, row.signal_time)}</td>
+            <td class="buy-price">${row.signal_price || "-"}</td>
+            <td>${row.trading_day || "-"}</td>
+          `;
+          tbody.appendChild(tr);
+        }
+      }
+
+      async function loadSignals() {
+        const resp = await fetch("/api/realtime/signals?limit=0", { cache: "no-store" });
+        const data = await readJsonResponse(resp, "信号接口异常");
+        if (!data.ok || !data.data) {
+          throw new Error(data.error || "接口返回异常");
+        }
+        return data.data;
+      }
+
+      async function loadImageMeta() {
+        const resp = await fetch("/api/realtime/push-image", { cache: "no-store" });
+        const data = await readJsonResponse(resp, "图片接口异常");
+        if (!data.ok || !data.data) {
+          throw new Error(data.error || "图片接口异常");
+        }
+        return data.data;
+      }
+
+      async function loadLogs() {
+        const resp = await fetch("/api/realtime/logs?lines=120", { cache: "no-store" });
+        const data = await readJsonResponse(resp, "日志接口异常");
+        if (!data.ok || !data.data) {
+          throw new Error(data.error || "日志接口异常");
+        }
+        return data.data;
+      }
+
+      async function loadWatchlistEditor() {
+        const resp = await fetch("/api/realtime/watchlist", { cache: "no-store" });
+        const data = await readJsonResponse(resp, "自选接口异常");
+        if (!data.ok || !data.data) {
+          throw new Error(data.error || "自选接口异常");
+        }
+        return data.data;
+      }
+
+      async function readJsonResponse(resp, fallbackMessage = "接口返回异常") {
+        const text = await resp.text();
+        let data = null;
+        try {
+          data = text ? JSON.parse(text) : {};
+        } catch (error) {
+          const normalized = String(text || "").trim().toLowerCase();
+          if (normalized.startsWith("<!doctype") || normalized.startsWith("<html")) {
+            throw new Error(`${fallbackMessage}：服务端返回了网页错误页（HTTP ${resp.status || "--"}）`);
+          }
+          throw new Error(`${fallbackMessage}：${(text || "").slice(0, 120) || error.message || "返回内容不是 JSON"}`);
+        }
+        if (!resp.ok && !data?.ok) {
+          throw new Error(data?.error || `${fallbackMessage}（HTTP ${resp.status || "--"}）`);
+        }
+        return data;
+      }
+
+      function renderImage(meta) {
+        setText("heroImage", meta.exists ? `推送图：${hms(meta.generated_at)}` : "推送图：未生成");
+        setText("imageGeneratedAt", meta.exists ? hms(meta.generated_at) : "未生成");
+        setText("imageMeta", meta.exists ? `生成于 ${meta.generated_at} · ${(meta.size_bytes / 1024).toFixed(1)} KB` : "当前未生成");
+
+        const frame = document.getElementById("snapshotFrame");
+        if (!meta.exists || !meta.url) {
+          state.imageUrl = "";
+          frame.innerHTML = `<div class="snapshot-empty">当前还没有推送图，点击右上角按钮生成。</div>`;
+          return;
+        }
+        if (state.imageUrl === meta.url) {
+          return;
+        }
+        state.imageUrl = meta.url;
+        frame.innerHTML = `<img src="${meta.url}" alt="推送图预览" />`;
+      }
+
+      function renderWatchlistEditor(payload, keepInput = false) {
+        setText("snapshotDateNote", `今日日期：${payload.today_label || payload.today_date || "--"}`);
+        setText("watchlistToday", payload.today_label || payload.today_date || "-");
+        setText("watchlistNextDay", payload.next_trade_label || payload.next_trade_day || "-");
+        setText("watchlistCountCard", payload.watchlist_count || 0);
+        setText("watchlistUpdatedAt", payload.watchlist_updated_at ? hms(payload.watchlist_updated_at) : "-");
+        setText("watchlistBackupAt", payload.backup_updated_at ? hms(payload.backup_updated_at) : "未备份");
+        setText(
+          "watchlistAssignMeta",
+          payload.assigned_count != null
+            ? `已分配 ${payload.assigned_count} / 未分配 ${payload.unassigned_count || 0}`
+            : "-"
+        );
+        setText(
+          "watchlistMeta",
+          `当前 ${payload.watchlist_count || 0} 只自选，最近备份 ${payload.backup_file_name || "暂无"}`
+        );
+        if (!keepInput) {
+          document.getElementById("watchlistTextarea").value = payload.codes_text || "";
+        }
+      }
+
+      function renderLogs(payload) {
+        const running = Boolean(payload.scan_running);
+        const runState = document.getElementById("scanRunState");
+        runState.textContent = payload.scan_status || (running ? "运行中" : "未运行");
+        runState.className = running
+          ? "running"
+          : payload.auto_start_enabled
+            ? "waiting"
+            : "stopped";
+        const autoStartState = document.getElementById("autoStartState");
+        autoStartState.textContent = payload.auto_start_status || "-";
+        autoStartState.className = payload.auto_start_enabled ? "running" : "stopped";
+        const autoStartCountdown = document.getElementById("autoStartCountdown");
+        autoStartCountdown.textContent = payload.auto_start_countdown_text || "-";
+        autoStartCountdown.className =
+          payload.auto_start_countdown_text === "扫描时段中"
+            ? "running"
+            : payload.auto_start_enabled
+              ? "waiting"
+              : "stopped";
+        state.autoStartCountdownSeconds =
+          payload.auto_start_enabled && Number(payload.auto_start_countdown_seconds) > 0
+            ? Number(payload.auto_start_countdown_seconds)
+            : -1;
+        setText("autoStartNext", payload.next_auto_start_at || payload.auto_start_phase || "-");
+        setText("logScanUpdated", hms(payload.scan_log_updated_at));
+        setText("logSignalUpdated", hms(payload.signal_file_updated_at));
+        setText("logLatest", (payload.latest_scan_line || "-").slice(0, 60));
+        setText(
+          "logPanelNote",
+          `自动预启动：${payload.auto_start_status || "未开启"}；${payload.auto_start_schedule || ""}；当前${payload.auto_start_phase || "状态未知"}。`
+        );
+        const view = document.getElementById("scanLogView");
+        view.textContent = payload.scan_log_tail || "当前没有读取到 scan.log 输出。";
+        const holder = view.parentElement;
+        if (holder) {
+          holder.scrollTop = holder.scrollHeight;
+        }
+      }
+
+      async function ensureAudioContext() {
+        const AudioCtor = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtor) {
+          return null;
+        }
+        if (!state.audioContext) {
+          state.audioContext = new AudioCtor();
+        }
+        if (state.audioContext.state === "suspended") {
+          await state.audioContext.resume();
+        }
+        return state.audioContext;
+      }
+
+      async function enableSound() {
+        try {
+          await ensureAudioContext();
+          state.soundEnabled = true;
+          document.getElementById("enableSoundBtn").textContent = "提示音已开启";
+          setText("audioState", "提示音已开启，新股票进来会响铃并播报代码/买入时间");
+        } catch (error) {
+          setText("audioState", `提示音开启失败：${error.message || error}`);
+        }
+      }
+
+      async function playBeep() {
+        if (!state.soundEnabled) {
+          return;
+        }
+        const ctx = await ensureAudioContext();
+        if (!ctx) {
+          return;
+        }
+        const tones = [880, 1175];
+        tones.forEach((freq, index) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(0.0001, ctx.currentTime + index * 0.12);
+          gain.gain.exponentialRampToValueAtTime(0.14, ctx.currentTime + index * 0.12 + 0.01);
+          gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + index * 0.12 + 0.18);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(ctx.currentTime + index * 0.12);
+          osc.stop(ctx.currentTime + index * 0.12 + 0.2);
+        });
+      }
+
+      function speakSignal(row) {
+        if (!state.soundEnabled || !("speechSynthesis" in window)) {
+          return;
+        }
+        const code = String(row.symbol || "").split(".")[0].split("").join(" ");
+        const name = String(row.name || "").trim();
+        const utter = new SpeechSynthesisUtterance(
+          `新信号，${code}，${name}，买入时间 ${spokenTime(row.signal_time)}，买入价 ${row.signal_price || "--"}`
+        );
+        utter.lang = "zh-CN";
+        utter.rate = 1.05;
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(utter);
+      }
+
+      async function requestDesktopNotifications() {
+        if (!("Notification" in window)) {
+          setText("audioState", "当前浏览器不支持桌面通知");
+          return;
+        }
+        const permission = await Notification.requestPermission();
+        state.desktopEnabled = permission === "granted";
+        document.getElementById("enableDesktopBtn").textContent = state.desktopEnabled ? "桌面通知已开启" : "桌面通知未授权";
+        if (state.desktopEnabled) {
+          setText("audioState", state.soundEnabled ? "提示音和桌面通知都已开启" : "桌面通知已开启，提示音可单独开启");
+        }
+      }
+
+      function pushBrowserNotification(row, pushTime) {
+        if (!state.desktopEnabled) {
+          return;
+        }
+        try {
+          const notice = new Notification(`新信号 ${row.symbol || "--"}`, {
+            body: `${row.name || ""} | 买入 ${hms(row.signal_time)} @ ${row.signal_price || "--"} | 推送 ${hms(pushTime)}`,
+            tag: signalKey(row),
+          });
+          window.setTimeout(() => notice.close(), 12000);
+        } catch (error) {
+          console.warn("notification_failed", error);
+        }
+      }
+
+      function showAlertCard(row, pushTime) {
+        const dock = document.getElementById("alertDock");
+        const card = document.createElement("div");
+        card.className = "alert-card";
+        card.innerHTML = `
+          <div class="alert-head">
+            <div class="alert-title">新股票即时推送</div>
+            <div class="alert-push-time">推送 ${hms(pushTime)}</div>
+          </div>
+          <div>
+            <span class="alert-code">${row.symbol || "--"}</span>
+            <span class="alert-name">${row.name || ""}</span>
+          </div>
+          <div class="alert-detail">
+            买入时间：${fullStamp(row.trading_day, row.signal_time)}<br />
+            买入价格：${row.signal_price || "--"}<br />
+            左1 ${pairTimePrice(row.l1_time, row.l1_price)} ｜ 左2 ${pairTimePrice(row.l2_time, row.l2_price)}<br />
+            右1 ${pairTimePrice(row.r1_time, row.r1_price)} ｜ 右2 ${pairTimePrice(row.r2_time, row.r2_price)}
+          </div>
+        `;
+        dock.prepend(card);
+        while (dock.children.length > 4) {
+          dock.lastElementChild.remove();
+        }
+        window.setTimeout(() => {
+          if (card.parentNode) {
+            card.remove();
+          }
+        }, 35000);
+      }
+
+      function computeNewRows(rawRows) {
+        if (!rawRows.length) {
+          return [];
+        }
+        if (!state.lastSignalKey) {
+          return rawRows.slice(-Math.min(rawRows.length, 3));
+        }
+        const idx = rawRows.findIndex((row) => signalKey(row) === state.lastSignalKey);
+        if (idx >= 0) {
+          return rawRows.slice(idx + 1);
+        }
+        return rawRows.slice(-Math.min(rawRows.length, 3));
+      }
+
+      function rememberRows(rawRows, pushTime, historical = false) {
+        for (const row of rawRows) {
+          const key = signalKey(row);
+          state.knownKeys.add(key);
+          if (!state.pushTimes.has(key)) {
+            state.pushTimes.set(key, historical ? String(row.signal_time || "") : String(pushTime || nowFullStamp()));
+          }
+        }
+        if (rawRows.length) {
+          state.lastSignalKey = signalKey(rawRows[rawRows.length - 1]);
+        }
+      }
+
+      function applySnapshot(payload, source = "poll") {
+        const rawRows = Array.isArray(payload.signals) ? payload.signals : [];
+        const rows = [...rawRows].reverse();
+        const tradingPages = buildTradingDayPages(rows);
+        renderTradingDayPager(tradingPages);
+        const selectedDay = ensureSelectedTradingDay(tradingPages);
+        const currentDayRows = selectedDay ? rows.filter((row) => tradingDayValue(row) === selectedDay) : rows;
+        const filteredRows = filterRows(currentDayRows);
+        const latestUpdate = payload.signal_file_updated_at || payload.updated_at || "";
+        let newRows = [];
+
+        if (!state.pushInitialized) {
+          state.pushInitialized = true;
+          state.flashKeys = new Set();
+          rememberRows(rawRows, latestUpdate, true);
+        } else if (rawRows.length) {
+          newRows = computeNewRows(rawRows);
+          state.flashKeys = new Set(newRows.map((row) => signalKey(row)));
+          for (const row of newRows) {
+            state.pushTimes.set(signalKey(row), String(payload.updated_at || nowFullStamp()));
+          }
+          rememberRows(rawRows, latestUpdate, false);
+        } else {
+          state.flashKeys = new Set();
+        }
+
+        const selectedDayLabel = selectedDay ? tradingDayLabel(selectedDay) : "全部交易日";
+
+        const modeText = source === "stream" ? "推送状态：流式在线" : "推送状态：轮询回退";
+        const lineText = source === "stream" ? "服务端即时推送已接通" : "流式断线，当前由轮询兜底";
+        const apiExpiryText = payload.api_expire_countdown_text || "--";
+
+        setText("heroMode", modeText);
+        setText("heroUpdated", `最后推送：${hms(latestUpdate || payload.updated_at)}`);
+        setText("heroApiExpire", `API到期：${apiExpiryText}`);
+        setText("mWatch", payload.watchlist_count || 0);
+        setText("mApiTotal", payload.api_total_count || 0);
+        setText("mApiUsed", payload.assigned_api_count || 0);
+        setText("mApiRemain", payload.api_remaining_count || 0);
+        setText("mSignal", payload.signal_total_count || 0);
+        setText("mApiExpire", apiExpiryText);
+        setText(
+          "mApiExpireSub",
+          payload.api_expire_at
+            ? `到期 ${payload.api_expire_at} · ${payload.api_expire_basis || "按批次推算"}`
+            : payload.api_expire_basis || "未找到 API 时间源"
+        );
+        state.apiExpiryCountdownSeconds =
+          Number.isFinite(Number(payload.api_expire_countdown_seconds)) && Number(payload.api_expire_countdown_seconds) >= 0
+            ? Number(payload.api_expire_countdown_seconds)
+            : -1;
+        setText("assignedSymbols", payload.assigned_symbol_count || 0);
+        setText("visibleSignals", state.searchQuery ? `${filteredRows.length}/${currentDayRows.length}` : currentDayRows.length);
+        setText("watchlistCountCard", payload.watchlist_count || 0);
+        setText("streamStatus", source === "stream" ? "流式在线" : "轮询回退");
+        setText(
+          "subLine",
+          `${lineText}，当前页 ${selectedDayLabel}，展示 ${filteredRows.length} 条${state.searchQuery ? `（筛选自 ${currentDayRows.length} 条）` : ""}，累计触发 ${payload.signal_total_count || 0} 条，最新文件时间 ${latestUpdate || "--"}。`
+        );
+        setText("scanSummary", `已分配 ${payload.assigned_symbol_count || 0} / ${payload.watchlist_count || 0} 只股票，剩余 API ${payload.api_remaining_count || 0}`);
+        setText(
+          "footerNote",
+          `当前页 ${selectedDayLabel}，最近推送 ${latestUpdate || "--"}，已使用 API ${payload.assigned_api_count || 0}，剩余 API ${payload.api_remaining_count || 0}，当前显示 ${filteredRows.length} 条${state.searchQuery ? `，搜索词：${state.searchQuery}` : ""}。`
+        );
+
+        if (newRows.length) {
+          const latestRow = newRows[newRows.length - 1];
+          const pushTime = payload.updated_at || nowHms();
+          setText(
+            "liveAlertText",
+            `最新推送 ${latestRow.symbol || "--"} ${latestRow.name || ""} ｜ 买入 ${hms(latestRow.signal_time)} ｜ 价格 ${latestRow.signal_price || "--"} ｜ 推送 ${hms(pushTime)}`
+          );
+          for (const row of newRows.slice(-3).reverse()) {
+            showAlertCard(row, pushTime);
+          }
+          playBeep();
+          speakSignal(latestRow);
+          pushBrowserNotification(latestRow, pushTime);
+        } else if (!rows.length) {
+          setText("liveAlertText", "当前暂无新信号，脚本持续扫描中。");
+        } else if (!document.getElementById("liveAlertText").textContent.includes("最新推送")) {
+          const latestRow = rows[0];
+          setText(
+            "liveAlertText",
+            `当前最新 ${latestRow.symbol || "--"} ${latestRow.name || ""} ｜ 买入 ${hms(latestRow.signal_time)} ｜ 价格 ${latestRow.signal_price || "--"}`
+          );
+        }
+
+        renderFeed(filteredRows);
+        renderTable(filteredRows, payload.updated_at || latestUpdate);
+
+        if (state.flashKeys.size) {
+          window.setTimeout(() => {
+            state.flashKeys = new Set();
+          }, 1200);
+        }
+      }
+
+      async function refreshDashboard(source = "poll") {
+        try {
+          const payload = await loadSignals();
+          state.lastSnapshot = payload;
+          applySnapshot(payload, source);
+        } catch (error) {
+          setText("heroMode", "推送状态：异常");
+          setText("streamStatus", "异常");
+          setText("subLine", `推送连接失败：${error.message || error}`);
+        }
+      }
+
+      async function refreshImageMeta() {
+        try {
+          const meta = await loadImageMeta();
+          renderImage(meta);
+        } catch (error) {
+          setText("imageMeta", `图片状态异常：${error.message || error}`);
+        }
+      }
+
+      async function refreshLogs() {
+        try {
+          const payload = await loadLogs();
+          renderLogs(payload);
+        } catch (error) {
+          setText("logPanelNote", `日志读取失败：${error.message || error}`);
+        }
+      }
+
+      async function refreshWatchlistEditor(keepInput = false) {
+        try {
+          const payload = await loadWatchlistEditor();
+          renderWatchlistEditor(payload, keepInput);
+        } catch (error) {
+          setText("watchlistMeta", `自选池读取失败：${error.message || error}`);
+        }
+      }
+
+      async function generateImage() {
+        const rows = Number(document.getElementById("imageRows").value || 24);
+        setText("imageMeta", "正在生成推送图...");
+        const btn = document.getElementById("generateImageBtn");
+        btn.disabled = true;
+        try {
+          const resp = await fetch("/api/realtime/push-image/generate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ rows }),
+          });
+          const data = await readJsonResponse(resp, "生成图片失败");
+          if (!data.ok || !data.data) {
+            throw new Error(data.error || "生成失败");
+          }
+          renderImage(data.data);
+        } catch (error) {
+          setText("imageMeta", `生成失败：${error.message || error}`);
+        } finally {
+          btn.disabled = false;
+        }
+      }
+
+      async function backupWatchlist() {
+        const btn = document.getElementById("backupWatchlistBtn");
+        btn.disabled = true;
+        setText("watchlistHelp", "正在保存当前自选代码备份...");
+        try {
+          const resp = await fetch("/api/realtime/watchlist/backup", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({}),
+          });
+          const data = await readJsonResponse(resp, "备份自选池失败");
+          if (!data.ok || !data.data) {
+            throw new Error(data.error || "备份失败");
+          }
+          renderWatchlistEditor(data.data, true);
+          setText("watchlistHelp", data.message || "当前自选池已备份。");
+        } catch (error) {
+          setText("watchlistHelp", `备份失败：${error.message || error}`);
+        } finally {
+          btn.disabled = false;
+        }
+      }
+
+      async function saveWatchlist(codesText = null) {
+        const btn = document.getElementById("saveWatchlistBtn");
+        const text = typeof codesText === "string" ? codesText : document.getElementById("watchlistTextarea").value;
+        const expectedCount = String(text || "")
+          .split(/\r?\n+/)
+          .map((line) => line.trim())
+          .filter(Boolean).length;
+        document.getElementById("watchlistTextarea").value = text;
+        btn.disabled = true;
+        setText("watchlistHelp", `正在把 ${expectedCount || 0} 只股票写入明天池子，并自动保留旧备份...`);
+        try {
+          const resp = await fetch("/api/realtime/watchlist/save", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ codes_text: text }),
+          });
+          const data = await readJsonResponse(resp, "保存自选池失败");
+          if (!data.ok || !data.data) {
+            throw new Error(data.error || "保存失败");
+          }
+          const serverCount = Number(data.data.watchlist_count || 0);
+          renderWatchlistEditor(data.data);
+          if (expectedCount && serverCount && expectedCount !== serverCount) {
+            setText(
+              "watchlistHelp",
+              `保存结果异常：页面识别 ${expectedCount} 只，但服务器当前是 ${serverCount} 只。请点一次“读取当前自选”确认，或重新写入。`
+            );
+            setText(
+              "watchlistOcrMeta",
+              `保存结果异常：识别 ${expectedCount} 只，服务器当前 ${serverCount} 只。`
+            );
+          } else {
+            setText("watchlistHelp", data.message || "新的自选代码已保存。");
+            setText(
+              "watchlistOcrMeta",
+              `已写入服务器：${serverCount || expectedCount || 0} 只股票，明天 09:20 会按这份池子自动启动。`
+            );
+          }
+          await refreshDashboard("poll");
+        } catch (error) {
+          setText("watchlistHelp", `保存失败：${error.message || error}`);
+        } finally {
+          btn.disabled = false;
+        }
+      }
+
+      function extractSixDigitCodes(rawText) {
+        const matches = String(rawText || "").match(/(?<!\d)\d{6}(?!\d)/g) || [];
+        return matches;
+      }
+
+      async function extractWatchlistImagesInBrowser(files) {
+        const seen = new Set();
+        const rows = [];
+        const fileSummaries = [];
+        let rawTotalCount = 0;
+
+        for (let index = 0; index < files.length; index += 1) {
+          const file = files[index];
+          setText("watchlistOcrMeta", `正在本地识别第 ${index + 1}/${files.length} 张截图：${file.name}（本地仅提取代码，名称以服务器识别为准）`);
+          const result = await window.Tesseract.recognize(file, "eng", {
+            tessedit_char_whitelist: "0123456789 ",
+          });
+          const fileCodes = [];
+          for (const code of extractSixDigitCodes(result?.data?.text || "")) {
+            if (!fileCodes.includes(code)) {
+              fileCodes.push(code);
+            }
+          }
+          rawTotalCount += fileCodes.length;
+          fileSummaries.push({
+            file_name: file.name,
+            code_count: fileCodes.length,
+            codes: fileCodes,
+          });
+          for (const code of fileCodes) {
+            if (seen.has(code)) {
+              continue;
+            }
+            seen.add(code);
+            const suffix = code.startsWith("6") || code.startsWith("5") || code.startsWith("9")
+              ? "SH"
+              : code.startsWith("4") || code.startsWith("8")
+                ? "BJ"
+                : "SZ";
+            rows.push({ symbol: `${code}.${suffix}`, name: "" });
+          }
+        }
+
+        rows.sort((a, b) => a.symbol.localeCompare(b.symbol));
+        return {
+          codesText: rows.map((item) => item.symbol).join("\n"),
+          fileCount: files.length,
+          codesCount: rows.length,
+          rawTotalCount,
+          duplicatesRemoved: Math.max(0, rawTotalCount - rows.length),
+          fileSummaries,
+        };
+      }
+
+      async function extractWatchlistImagesOnServer(files) {
+        const form = new FormData();
+        for (const file of files) {
+          form.append("images", file);
+        }
+        const resp = await fetch("/api/realtime/watchlist/extract-images", {
+          method: "POST",
+          body: form,
+        });
+        const data = await readJsonResponse(resp, "服务器图片提取失败");
+        if (!data.ok || !data.data) {
+          throw new Error(data.error || "图片提取失败");
+        }
+        return data;
+      }
+
+      async function extractWatchlistImages() {
+        const btn = document.getElementById("extractWatchlistImagesBtn");
+        const files = getWatchlistFiles();
+        if (!files.length) {
+          setText("watchlistOcrMeta", "请先拖入或选择至少一张截图。");
+          return;
+        }
+        btn.disabled = true;
+        setText("watchlistOcrMeta", `正在处理 ${files.length} 张截图，准备提取代码和名称...`);
+        try {
+          try {
+            const data = await extractWatchlistImagesOnServer(files);
+            if (!(data.data.ocr_codes_count || 0)) {
+              if (!(window.Tesseract && typeof window.Tesseract.recognize === "function")) {
+                renderWatchlistEditor(data.data);
+                setText("watchlistHelp", `${data.message || "图片提取完成。"} 但没有识别到有效股票代码。`);
+                setText(
+                  "watchlistOcrMeta",
+                  `已处理 ${data.data.ocr_file_count || files.length} 张图，但没有提取到有效股票代码。`
+                );
+                return;
+              }
+              setText(
+                "watchlistOcrMeta",
+                `服务器已处理 ${data.data.ocr_file_count || files.length} 张图，但没有提取到有效股票代码，正在回退浏览器本地识别...`
+              );
+              throw new Error("server_returned_zero_codes");
+            }
+            renderWatchlistEditor(data.data);
+            setText("watchlistHelp", `${data.message || "图片提取完成。"} 正在自动写入明天池子...`);
+            setText(
+              "watchlistOcrMeta",
+              `服务器识别完成：${data.data.ocr_file_count || files.length} 张图，提取 ${data.data.ocr_codes_count || 0} 只股票，去重 ${data.data.ocr_duplicates_removed || 0} 个重复代码，已带回名称。`
+            );
+            await saveWatchlist(data.data.codes_text || "");
+            return;
+          } catch (serverError) {
+            if (!(window.Tesseract && typeof window.Tesseract.recognize === "function")) {
+              throw serverError;
+            }
+            setText("watchlistOcrMeta", `服务器识别失败，正在回退浏览器本地识别：${serverError.message || serverError}`);
+          }
+
+          const result = await extractWatchlistImagesInBrowser(files);
+          if (!result.codesCount) {
+            setText("watchlistHelp", "本地识别完成，但没有提取到有效股票代码。");
+            setText("watchlistOcrMeta", `本地识别完成：${result.fileCount} 张图，未识别到有效股票代码。`);
+            return;
+          }
+          document.getElementById("watchlistTextarea").value = result.codesText;
+          setText(
+            "watchlistHelp",
+            `已在浏览器本地从 ${result.fileCount} 张图提取 ${result.codesCount} 只股票，去重 ${result.duplicatesRemoved} 个重复代码，正在自动写入明天池子...`
+          );
+          setText(
+            "watchlistOcrMeta",
+            `本地识别完成：${result.fileCount} 张图，提取 ${result.codesCount} 只股票，去重 ${result.duplicatesRemoved} 个重复代码。名称请以服务器识别为准。`
+          );
+          await saveWatchlist(result.codesText);
+        } catch (error) {
+          setText("watchlistOcrMeta", `图片提取失败：${error.message || error}`);
+        } finally {
+          btn.disabled = false;
+        }
+      }
+
+      function connectRealtimeStream() {
+        if (!window.EventSource) {
+          setText("streamStatus", "浏览器不支持流式");
+          return;
+        }
+        if (state.stream) {
+          state.stream.close();
+        }
+        const stream = new EventSource("/api/realtime/stream?limit=0");
+        state.stream = stream;
+
+        stream.addEventListener("snapshot", (event) => {
+          try {
+            const payload = JSON.parse(event.data);
+            if (payload.ok && payload.data) {
+              state.lastSnapshot = payload.data;
+              applySnapshot(payload.data, "stream");
+            }
+          } catch (error) {
+            console.warn("stream_parse_failed", error);
+          }
+        });
+
+        stream.onopen = () => {
+          setText("heroMode", "推送状态：流式在线");
+          setText("streamStatus", "流式在线");
+        };
+
+        stream.onerror = () => {
+          setText("heroMode", "推送状态：流式重连中");
+          setText("streamStatus", "轮询回退");
+          try {
+            stream.close();
+          } catch (error) {
+            console.warn("stream_close_failed", error);
+          }
+          state.stream = null;
+          if (!state.streamReconnectTimer) {
+            state.streamReconnectTimer = window.setTimeout(() => {
+              state.streamReconnectTimer = 0;
+              connectRealtimeStream();
+            }, 3000);
+          }
+        };
+      }
+
+      function tickAutoStartCountdown() {
+        if (state.autoStartCountdownSeconds <= 0) {
+          return;
+        }
+        state.autoStartCountdownSeconds -= 1;
+        const countdownEl = document.getElementById("autoStartCountdown");
+        if (countdownEl) {
+          countdownEl.textContent = formatCountdownSeconds(state.autoStartCountdownSeconds);
+        }
+      }
+
+      function tickApiExpiryCountdown() {
+        if (state.apiExpiryCountdownSeconds < 0) {
+          return;
+        }
+        if (state.apiExpiryCountdownSeconds > 0) {
+          state.apiExpiryCountdownSeconds -= 1;
+        }
+        const text = formatCountdownSeconds(state.apiExpiryCountdownSeconds);
+        setText("mApiExpire", text);
+        setText("heroApiExpire", `API到期：${text}`);
+      }
+
+      document.getElementById("generateImageBtn").addEventListener("click", generateImage);
+      document.getElementById("refreshImageBtn").addEventListener("click", refreshImageMeta);
+      document.getElementById("refreshNowBtn").addEventListener("click", () => refreshDashboard("poll"));
+      document.getElementById("reloadWatchlistBtn").addEventListener("click", () => refreshWatchlistEditor(false));
+      document.getElementById("backupWatchlistBtn").addEventListener("click", backupWatchlist);
+      document.getElementById("saveWatchlistBtn").addEventListener("click", saveWatchlist);
+      document.getElementById("extractWatchlistImagesBtn").addEventListener("click", extractWatchlistImages);
+      document.getElementById("watchlistImageInput").addEventListener("change", (event) => {
+        const files = setWatchlistFiles(event.target.files || []);
+        setText("watchlistOcrMeta", files.length ? `已选择 ${files.length} 张截图，点击按钮开始提取代码。` : "支持多张截图，自动提取 6 位股票代码、去重、排序后直接替换成新的自选池。");
+      });
+      (() => {
+        const dropzone = document.getElementById("watchlistDropzone");
+        const input = document.getElementById("watchlistImageInput");
+        const activate = (event) => {
+          event.preventDefault();
+          dropzone.classList.add("active");
+        };
+        const deactivate = (event) => {
+          event.preventDefault();
+          dropzone.classList.remove("active");
+        };
+        ["dragenter", "dragover"].forEach((name) => dropzone.addEventListener(name, activate));
+        ["dragleave", "dragend"].forEach((name) => dropzone.addEventListener(name, deactivate));
+        dropzone.addEventListener("drop", (event) => {
+          event.preventDefault();
+          dropzone.classList.remove("active");
+          const files = setWatchlistFiles(event.dataTransfer?.files || []);
+          setText("watchlistOcrMeta", files.length ? `已拖入 ${files.length} 张截图，点击按钮开始提取代码。` : "未检测到有效图片，请重新拖入截图。");
+        });
+        dropzone.addEventListener("click", (event) => {
+          if (event.target === input) {
+            return;
+          }
+          input.click();
+        });
+      })();
+      document.getElementById("signalSearchInput").addEventListener("input", (event) => {
+        state.searchQuery = String(event.target.value || "").trim();
+        if (state.lastSnapshot) {
+          applySnapshot(state.lastSnapshot, "poll");
+        } else {
+          refreshDashboard("poll");
+        }
+      });
+      document.getElementById("signalDayPager").addEventListener("click", (event) => {
+        const target = event.target.closest("button[data-day]");
+        if (!target) {
+          return;
+        }
+        state.selectedTradingDay = String(target.dataset.day || "").trim();
+        if (state.lastSnapshot) {
+          applySnapshot(state.lastSnapshot, "poll");
+        }
+      });
+      document.getElementById("enableSoundBtn").addEventListener("click", enableSound);
+      document.getElementById("enableDesktopBtn").addEventListener("click", requestDesktopNotifications);
+      document.addEventListener(
+        "click",
+        () => {
+          ensureAudioContext().catch(() => null);
+        },
+        { once: true }
+      );
+
+      if (state.desktopEnabled) {
+        document.getElementById("enableDesktopBtn").textContent = "桌面通知已开启";
+      }
+
+      refreshDashboard("poll");
+      refreshImageMeta();
+      refreshLogs();
+      refreshWatchlistEditor();
+      connectRealtimeStream();
+      setInterval(() => refreshDashboard("poll"), 5000);
+      setInterval(refreshImageMeta, 5000);
+      setInterval(refreshLogs, 3000);
+      setInterval(tickAutoStartCountdown, 1000);
+      setInterval(tickApiExpiryCountdown, 1000);
+
+      window.addEventListener("beforeunload", () => {
+        if (state.stream) {
+          state.stream.close();
+        }
+      });
+    </script>
+  </body>
+</html>

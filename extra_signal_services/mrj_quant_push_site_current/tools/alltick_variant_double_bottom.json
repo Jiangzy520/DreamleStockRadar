@@ -1,0 +1,12 @@
+{
+  "shape_bar_seconds": 5,
+  "peak_left_units": 1,
+  "peak_right_units": 1,
+  "r1_open_gain_pct": 2.5,
+  "confirm_mode": "tick",
+  "buy_deadline": "14:30:00",
+  "max_signals_per_day": 1,
+  "scan_interval_seconds": 1,
+  "seed_latest_http": false,
+  "watchlist_file": "tools/alltick_variant_double_bottom_watchlist.txt"
+}

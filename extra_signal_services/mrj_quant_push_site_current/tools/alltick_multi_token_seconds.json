@@ -1,0 +1,20 @@
+{
+  "distribution_mode": "assignment",
+  "max_symbols_per_api": 120,
+  "persist_intervals": [1, 5],
+  "shape_bar_seconds": 60,
+  "peak_left_units": 1,
+  "peak_right_units": 1,
+  "r1_open_gain_pct": 2.5,
+  "confirm_mode": "minute_close",
+  "buy_deadline": "14:30:00",
+  "max_signals_per_day": 1,
+  "scan_interval_seconds": 1,
+  "seed_latest_http": false,
+  "quote_provider": "eastmoney",
+  "quote_timeout_seconds": 10,
+  "watchlist_file": ".guanlan/alltick_manager/watchlist.csv",
+  "assignment_file": ".guanlan/alltick_manager/stock_assignments.csv",
+  "api_file": ".guanlan/alltick_manager/apis.txt",
+  "log_each_tick": false
+}

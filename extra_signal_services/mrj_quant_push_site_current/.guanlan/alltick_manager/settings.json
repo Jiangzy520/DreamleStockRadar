@@ -1,0 +1,4 @@
+{
+  "distribution_mode": "balanced",
+  "max_stocks_per_api": 2
+}

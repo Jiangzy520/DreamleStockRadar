@@ -1,0 +1,18 @@
+[Unit]
+Description=Push-XTP Dashboard
+After=network-online.target push-xtp-bridge.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/push_xtp_bridge
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/home/ubuntu/push_xtp_bridge/.venv_install/bin/python /home/ubuntu/push_xtp_bridge/dashboard_app.py
+Restart=always
+RestartSec=5
+StandardOutput=append:/home/ubuntu/.vntrader/log/push_xtp_dashboard.log
+StandardError=append:/home/ubuntu/.vntrader/log/push_xtp_dashboard.log
+
+[Install]
+WantedBy=multi-user.target

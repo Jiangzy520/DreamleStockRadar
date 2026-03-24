@@ -1,0 +1,12 @@
+{
+  "账号": "DEMO_ACCOUNT",
+  "密码": "DEMO_PASSWORD",
+  "客户号": 1,
+  "行情地址": "demo.market.host",
+  "行情端口": 6001,
+  "交易地址": "demo.trade.host",
+  "交易端口": 6101,
+  "行情协议": "TCP",
+  "日志级别": "INFO",
+  "授权码": "DEMO_LICENSE"
+}

@@ -1,0 +1,6 @@
+api_provider=东方财富
+watchlist_count=0
+mapped_count=0
+api_count=1
+assignment_mode=single_token_broadcast
+map_csv=/home/jzy/桌面/公开版/server_117_full_20260324_223452/extra_signal_services/mrj_quant_push_site_current/.guanlan/alltick_manager/stock_api_pairing_simple_current.csv
