@@ -1188,12 +1188,12 @@
             </p>
             <div class="quick-entries">
               <a class="quick-entry signal" href="/push">股票信号页</a>
-              <a class="quick-entry futures" href="http://127.0.0.1:18081/">期货信号页</a>
+              <a class="quick-entry futures" href="/futures" data-local-href="http://127.0.0.1:18081/" data-remote-href="/futures">期货信号页</a>
               <a class="quick-entry anchor" href="#public-docs">站点说明</a>
               <a class="quick-entry anchor" href="#public-docs">三源支持</a>
-              <a class="quick-entry bridge" href="http://127.0.0.1:8792/">股票桥接</a>
-              <a class="quick-entry bridge" href="http://127.0.0.1:8792/futures">期货桥接</a>
-              <a class="quick-entry notify" href="http://127.0.0.1:8792/notifications">推送配置</a>
+              <a class="quick-entry bridge" href="/bridge/" data-local-href="http://127.0.0.1:8792/" data-remote-href="/bridge/">股票桥接</a>
+              <a class="quick-entry bridge" href="/bridge/futures" data-local-href="http://127.0.0.1:8792/futures" data-remote-href="/bridge/futures">期货桥接</a>
+              <a class="quick-entry notify" href="/notifications" data-local-href="http://127.0.0.1:8792/notifications" data-remote-href="/notifications">推送配置</a>
               <a class="quick-entry anchor" href="#usage-guide">使用文档</a>
             </div>
           </div>
@@ -1611,6 +1611,14 @@
         selectedSource: "",
       };
 
+      function syncQuickEntryLinks() {
+        const host = String(window.location.hostname || "").toLowerCase();
+        const isLocalHost = host === "127.0.0.1" || host === "localhost";
+        document.querySelectorAll(".quick-entries a[data-local-href][data-remote-href]").forEach((link) => {
+          link.href = isLocalHost ? link.dataset.localHref : link.dataset.remoteHref;
+        });
+      }
+
       const SOURCE_META = {
         alltick: {
           label: "AllTick",
@@ -1630,6 +1638,8 @@
         const text = String(value || "").trim().toLowerCase();
         return Object.prototype.hasOwnProperty.call(SOURCE_META, text) ? text : "alltick";
       }
+
+      syncQuickEntryLinks();
 
       function currentSourceMeta() {
         return SOURCE_META[normalizeSourceId(state.selectedSource)] || SOURCE_META.alltick;
