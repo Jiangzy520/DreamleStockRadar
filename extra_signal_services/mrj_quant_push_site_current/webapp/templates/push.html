@@ -1401,31 +1401,6 @@
               <li>统一接收接口是 `POST /api/notifications/dispatch`，后端已经能接收并路由。</li>
             </ul>
           </article>
-          <article class="usage-doc-card">
-            <h3>8. 当前公开版的限制</h3>
-            <p>这几个点不是故障，而是当前公开版故意保留下来的展示边界，上传 GitHub 时要让客户知道。</p>
-            <ul class="usage-doc-list">
-              <li>期货页和桥接页的部分按钮在公开版里只保留入口，不会执行真实扫描、拉价、回测或下单。</li>
-              <li>通知中心现在已经能手动测试、也能通过统一 API 接收事件，但还没有自动挂到所有现有信号脚本上。</li>
-              <li>页面里有一些 `127.0.0.1` 的本地入口，适合你本机演示，不适合直接当公网地址发给客户。</li>
-              <li>桥接页、期货页现在展示的是公开占位数据，不代表真实账户、真实策略或真实行情。</li>
-            </ul>
-          </article>
-          <article class="usage-doc-card">
-            <h3>9. 上传 GitHub 前怎么检查</h3>
-            <p>如果你准备把这份目录直接上传，建议在上传前按这个顺序再过一遍。</p>
-            <ul class="usage-doc-list">
-              <li>确认 `push_xtp_bridge/state/notification_channels.local.json` 里没有填入真实 Webhook。</li>
-              <li>确认自选池、图片导入结果、日志输出、临时 CSV 没有留下新生成的生产数据。</li>
-              <li>确认桥接页、期货页、通知中心都只显示公开版说明，不显示真实账户和真实记录。</li>
-              <li>确认如果要给别人本地运行，先告诉对方：这套公开版主要用于展示结构，不包含真实生产凭据。</li>
-            </ul>
-          </article>
-        </div>
-        <div class="usage-doc-tip">
-          当前我检查下来的结论是：这套公开版已经能用于“演示页面能力 + 给客户填写推送 API + 展示三源支持”。
-          但如果你的目标是“自动把现有股票/期货信号和成交结果实时推到飞书、钉钉、企业微信”，下一步还需要把现有信号脚本和桥接成交事件正式接到
-          <code>/api/notifications/dispatch</code> 这条统一通知接口上。
         </div>
       </section>
 
