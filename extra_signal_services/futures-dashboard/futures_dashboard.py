@@ -607,7 +607,7 @@ HTML = """<!doctype html>
   <div class="shell">
     <section class="hero">
       <h1>期货盯盘面板</h1>
-      <p>当前本地公开版已经隐藏真实行情记录、策略命中、夜盘任务状态和回测结果，仅保留页面结构与入口说明，方便上传 GitHub。</p>
+      <p>当前本地公开版已经隐藏真实行情记录、策略命中、夜盘任务状态和历史模块数据，仅保留页面结构与入口说明，方便上传 GitHub。</p>
       <div class="hero-row">
         <span class="chip">回测：三交易日前历史</span>
         <span class="chip">自动预启动：开盘前 10 分钟</span>
@@ -616,7 +616,7 @@ HTML = """<!doctype html>
         <button id="runAllBtn" class="primary">全部刷新</button>
         <button id="runScanBtn" class="secondary">重跑今天历史</button>
         <button id="runPricesBtn" class="secondary">更新全部最新价</button>
-        <button id="runBacktestBtn" class="secondary">回测三天前历史</button>
+        <button id="runBacktestBtn" class="secondary">刷新历史模块</button>
         <a class="toolbar-link secondary" href="__STOCK_PANEL_URL__">返回股票信号页</a>
         <button id="refreshBtn" class="secondary">刷新页面</button>
       </div>
@@ -626,7 +626,7 @@ HTML = """<!doctype html>
     <section class="public-doc">
       <h2>公开版文档信息</h2>
       <p>
-        这份期货信号页已切换为 GitHub 公开展示模式。真实行情记录、命中事件、回测结果、夜盘任务与生成日志已从页面展示中移除，
+        这份期货信号页已切换为 GitHub 公开展示模式。真实行情记录、命中事件、历史模块数据、夜盘任务与生成日志已从页面展示中移除，
         只保留风格、布局和入口说明。
       </p>
       <div class="public-doc-grid">
@@ -721,7 +721,7 @@ HTML = """<!doctype html>
 
       <article class="card span-12">
         <div class="section-head">
-          <h3>三交易日前历史明细</h3>
+          <h3>历史模块预览</h3>
           <div class="meta" id="backtestMeta">-</div>
         </div>
         <div class="formula" id="backtestSummaryNote">还没有历史明细。</div>
@@ -928,20 +928,20 @@ HTML = """<!doctype html>
 
       const backtestSummary = payload.backtest && payload.backtest.summary ? payload.backtest.summary : {};
       document.getElementById("backtestMeta").textContent = publicMode
-        ? "公开版已隐藏回测结果"
+        ? "公开版演示模块"
         : backtestSummary.updated_at
           ? `目标日 ${backtestSummary.trade_date || "-"}，更新 ${backtestSummary.updated_at}`
           : `目标日 ${backtestSummary.trade_date || "-"}`;
       document.getElementById("backtestSummaryNote").innerHTML = publicMode
         ? [
-            backtestSummary.public_note || "公开版已隐藏三交易日前历史明细。",
-            "页面结构与入口已保留，方便上传 GitHub 时演示前端布局。",
-            "如需恢复真实回测结果，请在私有环境重新接入你的历史 CSV 与脚本输出。",
+            backtestSummary.public_note || "公开版仅保留历史模块展示位。",
+            "当前不展示任何真实历史明细或统计结果。",
+            "如需实际数据，请使用你的私有部署环境。",
           ].map((line) => `<div>${line}</div>`).join("")
         : [
             backtestSummary.available
               ? `这里直接按“历史命中”的样子展示三交易日前的信号明细。`
-              : "还没有历史明细，点击上方“回测三天前历史”即可生成。",
+              : "还没有历史明细，点击上方按钮即可刷新。",
             backtestSummary.available
               ? `当前共找到 ${backtestSummary.total_trades} 条信号，页面展示最近 ${backtestSummary.rows_shown || 0} 条。`
               : `目标日期：${backtestSummary.trade_date || "-"}`,
@@ -997,7 +997,7 @@ HTML = """<!doctype html>
           "C_low",
           "C_close",
         ],
-        publicMode ? "公开版已隐藏三交易日前历史明细。" : "还没有历史明细。",
+        publicMode ? "公开版仅保留历史模块展示位。" : "还没有历史明细。",
         { compactMode: true }
       );
 
@@ -1164,7 +1164,7 @@ def build_public_dashboard_data() -> dict[str, object]:
                 "avg_net_return_pct_text": "0.0000%",
                 "total_net_return_pct": 0.0,
                 "total_net_return_pct_text": "0.0000%",
-                "public_note": "公开版已隐藏三交易日前历史明细与回测结果。",
+                "public_note": "公开版仅保留历史模块展示位，不展示真实数据。",
             },
             "rows": [],
             "failed": [],
