@@ -1,25 +1,25 @@
-# Public GitHub Notes
+# 公开版 GitHub 说明
 
-This repository copy is sanitized for public sharing.
+这份仓库副本已经完成脱敏处理，可用于公开展示、结构说明和对外分享。
 
-## Kept
+## 公开版保留内容
 
-- Page structure and navigation
-- Source labels for `AllTick`, `通达信`, and `东方财富`
-- Local demo startup layout
-- Example configuration structure
+- 页面结构、导航关系与主要入口
+- `AllTick`、`通达信`、`东方财富` 三个数据源标签与切换说明
+- 本地演示启动方式与基础目录布局
+- 示例配置结构与公开版说明文档
 
-## Removed or Replaced
+## 公开版已移除或替换内容
 
-- Real account credentials
-- Real passwords, tokens, webhooks, and auth values
-- Real signal records and watchlists
-- Real trade records, position state, and runtime account data
-- Real strategy execution settings used in production
-- Runtime logs, local caches, and generated artifacts
+- 真实账户凭证
+- 真实密码、令牌、Webhook 和鉴权信息
+- 真实信号记录、自选池与观察列表
+- 真实交易记录、持仓状态与运行中账户数据
+- 生产环境使用的实际策略执行设置
+- 运行日志、本地缓存与生成产物
 
-## Before Using Privately
+## 私有环境使用前建议
 
-1. Restore your own private config files.
-2. Rebuild local runtime caches and logs.
-3. Never commit real credentials or runtime state into GitHub.
+1. 请先恢复你自己的私有配置文件。
+2. 请重新生成本地运行缓存、状态文件和日志目录。
+3. 不要将任何真实凭据、运行状态或私有数据再次提交到 GitHub。
