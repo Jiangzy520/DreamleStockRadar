@@ -1183,13 +1183,13 @@
             <div class="hero-kicker">Realtime Strategy Center</div>
             <h1>服务器实时推送中心</h1>
             <p>
-              这是一个用于 GitHub 展示的公开演示版页面。当前页面保留结构、入口和三源说明，
-              但已经移除了真实信号记录、账户信息、策略参数、运行日志和自选池内容，不会展示任何生产数据。
+              这是一个用于展示股票信号站结构、三源切换能力和主要功能入口的多源页面。
+              当前重点保留页面布局、功能入口、来源说明和交互流程，便于对外介绍站点能力。
             </p>
             <div class="quick-entries">
               <a class="quick-entry signal" href="/push">股票信号页</a>
               <a class="quick-entry futures" href="http://127.0.0.1:18081/">期货信号页</a>
-              <a class="quick-entry anchor" href="#public-docs">公开版说明</a>
+              <a class="quick-entry anchor" href="#public-docs">站点说明</a>
               <a class="quick-entry anchor" href="#public-docs">三源支持</a>
               <a class="quick-entry bridge" href="http://127.0.0.1:8792/">股票桥接</a>
               <a class="quick-entry bridge" href="http://127.0.0.1:8792/futures">期货桥接</a>
@@ -1271,10 +1271,10 @@
       </section>
 
       <section class="public-doc-panel" id="public-docs">
-        <div class="public-doc-title">公开版文档信息</div>
+        <div class="public-doc-title">站点说明</div>
         <div class="public-doc-note">
-          当前仓库用于公开展示和 GitHub 上传，页面已经切换到脱敏模式。下面保留你要展示的三种来源版本名称，
-          以及这份公开版当前保留和移除的内容说明。
+          当前页面用于展示多源股票信号站的结构、入口与功能分区。这里保留三种来源版本名称、
+          页面布局说明和主要操作入口，便于介绍站点能力。
         </div>
         <div class="public-source-row">
           <span class="public-source-pill">AllTick 版本</span>
@@ -1285,114 +1285,113 @@
           <div class="public-version-card">
             <div class="public-version-name">AllTick 版本</div>
             <div class="public-version-desc">
-              保留 AllTick 来源名称、页面结构和入口位置。GitHub 公开版已经移除真实 Token、真实信号记录和运行中的分配结果。
+              展示 AllTick 来源标签、页面结构和入口位置，适合说明多源接入后的页面组织方式。
             </div>
-            <div class="public-version-foot">公开用途：结构展示 / 页面说明 / 文档演示</div>
+            <div class="public-version-foot">适用场景：来源说明 / 页面展示 / 功能演示</div>
           </div>
           <div class="public-version-card">
             <div class="public-version-name">通达信版本</div>
             <div class="public-version-desc">
-              保留通达信版本说明和展示位。公开版不再展示真实通达信列表、自选池结果、历史记录或策略联动数据。
+              展示通达信版本说明、模块位置和切换效果，用于说明同一页面结构下的多来源视角。
             </div>
-            <div class="public-version-foot">公开用途：三源支持说明 / 版本能力占位</div>
+            <div class="public-version-foot">适用场景：三源切换说明 / 版本能力展示</div>
           </div>
           <div class="public-version-card">
             <div class="public-version-name">东方财富版本</div>
             <div class="public-version-desc">
-              保留东方财富来源名称和界面风格。真实 API、批次、Tick、账户关联信息和历史信号都已替换成公开占位内容。
+              展示东方财富来源名称和界面风格，方便对外说明页面视觉风格与来源标识方式。
             </div>
-            <div class="public-version-foot">公开用途：界面预览 / GitHub 安全展示</div>
+            <div class="public-version-foot">适用场景：界面预览 / 产品介绍</div>
           </div>
         </div>
         <div class="source-switch-shell">
           <div class="source-switch-title">三源切换</div>
           <div class="source-switch-row" id="sourceSwitch"></div>
-          <div class="source-switch-note" id="sourceSwitchNote">
-            当前可以在 AllTick、通达信、东方财富三个版本之间切换查看。公开版只清空记录，不删除页面功能。
-          </div>
+        <div class="source-switch-note" id="sourceSwitchNote">
+            当前可以在 AllTick、通达信、东方财富三个版本之间切换查看，便于对比不同来源视角下的页面展示效果。
+        </div>
         </div>
         <ul class="public-doc-list">
-          <li>页面保留系统结构、入口布局、视觉样式和模块组织，方便公开说明项目能力。</li>
-          <li>页面已清空真实信号表、历史记录、自选池、日志、成交配对、账户资料和运行中的策略信息。</li>
-          <li>本地配置文件、连接文件、状态文件、Webhook、API Token 和示例数据会统一替换成公开占位内容。</li>
-          <li>如需重新接入真实环境，请使用你自己的本地配置文件和私有数据，不要直接把敏感文件提交到 GitHub。</li>
+          <li>页面保留系统结构、入口布局、视觉样式和模块组织，便于说明站点能力。</li>
+          <li>页面重点展示信号页结构、三源切换、自选池编辑、推送配置和桥接页入口。</li>
+          <li>不同来源标签、功能按钮和操作流程均可直接演示给客户或合作方查看。</li>
+          <li>如需启用完整数据与通知能力，可在部署环境中接入对应的数据源和消息通道。</li>
         </ul>
         <div class="public-tip">
-          临时说明：这份公开版当前主要用于展示页面结构和三源支持能力，不再对外暴露任何可直接复用的真实账户、
-          真实策略参数、真实交易记录或生产 API 凭据。
+          当前页面重点用于展示多源信号站的界面结构、来源切换能力和主要功能入口。
         </div>
       </section>
 
       <section class="usage-doc-panel" id="usage-guide">
-        <div class="usage-doc-title">站点使用文档</div>
+        <div class="usage-doc-title">站点使用说明</div>
         <div class="usage-doc-note">
-          下面这份说明面向公开版使用者，重点解释页面入口、三源切换、截图导入、推送配置、桥接页用途，以及上传 GitHub 前后的注意事项。
+          下面这份说明重点解释页面入口、三源切换、截图导入、自选池同步和推送配置的使用方式。
         </div>
         <div class="usage-doc-grid">
           <article class="usage-doc-card">
             <h3>1. 页面入口怎么用</h3>
-            <p>首页顶部的快捷入口用于在不同模块之间跳转，公开版建议按下面顺序查看。</p>
+            <p>首页顶部的快捷入口用于在不同模块之间跳转，建议按下面顺序查看。</p>
             <ul class="usage-doc-list">
               <li>`股票信号页`：查看股票信号页主界面、三源切换、自选池编辑和完整信号表结构。</li>
               <li>`期货信号页`：查看期货盯盘页的结构、指标卡片、表格区域和按钮入口。</li>
-              <li>`股票桥接` / `期货桥接`：查看桥接面板布局、占位卡片、导航入口和公开版说明。</li>
+              <li>`股票桥接` / `期货桥接`：查看桥接面板布局、卡片区域和导航入口。</li>
               <li>`推送配置`：客户自己填写飞书、钉钉、企业微信 Webhook 的地方。</li>
             </ul>
           </article>
           <article class="usage-doc-card">
             <h3>2. 三源切换怎么理解</h3>
-            <p>公开版保留了 AllTick、通达信、东方财富 三个版本的切换能力，但当前清空了真实信号记录，只保留结构说明。</p>
+            <p>页面支持 AllTick、通达信、东方财富 三个来源视角，可用于展示不同来源标签下的同一套页面结构。</p>
             <ul class="usage-doc-list">
               <li>点击页面里的三源切换按钮，可以切换当前查看的来源视角。</li>
               <li>切换后，完整信号表标题、来源说明、页面文案会跟着切换。</li>
-              <li>这三源现在是“同一套页面结构 + 不同来源标签”的公开版展示模式。</li>
-              <li>如果未来要做成三套独立池子，需要再把自选池、分配文件和信号源拆开。</li>
+              <li>三源当前使用同一套页面结构，重点展示来源标签、入口关系和模块组织。</li>
+              <li>如果后续需要分成独立来源版本，可再按来源拆分自选池和信号链路。</li>
             </ul>
           </article>
           <article class="usage-doc-card">
             <h3>3. 截图导入与自选池同步</h3>
-            <p>`从多张图片提取代码` 和 `写入明天池子并重新分配` 这两步功能都保留着，公开版只是清空了历史记录。</p>
+            <p>`从多张图片提取代码` 和 `写入明天池子并重新分配` 两步功能都保留着，便于演示导入流程。</p>
             <ul class="usage-doc-list">
               <li>先把多张截图拖进去，或者手动选择图片文件。</li>
               <li>点击 `从多张图片提取代码` 后，系统会做 OCR，提取 6 位股票代码并自动去重。</li>
               <li>确认文本框里的代码没问题后，点击 `写入明天池子并重新分配`。</li>
               <li>当前逻辑是：写入一个共用自选池，并同步到 AllTick / 通达信 / 东方财富 三个版本。</li>
-              <li>如果你在公开版里操作过这些按钮，上传 GitHub 前建议再检查一遍当前自选是否需要清空。</li>
+              <li>导入完成后，可以再切换三源标签查看同一套池子在不同来源说明下的展示方式。</li>
             </ul>
           </article>
           <article class="usage-doc-card" id="setup-guide">
             <h3>4. 环境准备： 下载 VS Code 并安装 Codex 扩展</h3>
-            <p>这部分对应上面的固定导航入口，说明公开版最推荐的查看和整理方式。</p>
+            <p>这部分对应上面的固定导航入口，说明推荐的查看和整理方式。</p>
             <ul class="usage-doc-list">
               <li>建议用最新版 VS Code 打开项目目录，便于浏览 HTML、Python、systemd、nginx 等文件。</li>
               <li>安装 Codex 扩展后，可以更快定位模板、接口、服务脚本和页面入口之间的关系。</li>
-              <li>如果只是公开展示，不需要接入真实账户、真实行情或真实推送配置。</li>
-              <li>如果要做私有版恢复，请把敏感配置保留在本地环境，不要再提交到 GitHub。</li>
+              <li>如果只是查看演示页结构，不需要额外接入行情、桥接或通知服务。</li>
+              <li>如需进一步接入数据、通知或桥接能力，可按部署环境补充对应配置。</li>
             </ul>
           </article>
           <article class="usage-doc-card" id="market-data-guide">
             <h3>5. 股票、期货实时数据获取说明</h3>
-            <p>公开版保留了股票三源支持和期货页面结构，但已经移除了生产环境下的真实数据依赖。</p>
+            <p>当前页面保留了股票三源支持和期货页面结构，用于说明多来源接入后的展示方式。</p>
             <ul class="usage-doc-list">
               <li>股票页现在保留 AllTick、通达信、东方财富 三源切换能力与说明文案。</li>
-              <li>期货页保留盯盘页、桥接页、指标卡和表格结构，但不展示真实命中与真实成交。</li>
-              <li>如果要恢复实时数据，需要在私有环境重新接入你自己的数据源、状态文件和运行服务。</li>
-              <li>GitHub 公开版适合展示结构，不适合直接作为生产实时数据站部署。</li>
+              <li>期货页保留盯盘页、桥接页、指标卡和表格结构，便于展示站点的期货模块。</li>
+              <li>如需启用实时数据，可按你的部署环境接入对应的数据源服务。</li>
+              <li>当前这套页面更适合产品展示、功能演示和文档说明。</li>
             </ul>
           </article>
           <article class="usage-doc-card" id="account-api-guide">
             <h3>6. 股票、期货模拟盘账号与接口说明</h3>
-            <p>这部分对应你强调要保留的第三条导航，用来说明公开版已经清掉哪些账号和接口信息。</p>
+            <p>这部分对应你强调要保留的第三条导航，用来说明账户、桥接和通知接口的接入位置。</p>
             <ul class="usage-doc-list">
-              <li>股票桥接、期货桥接、推送配置页面都保留入口和页面结构，但已去掉真实账户与真实策略参数。</li>
-              <li>飞书、钉钉、企业微信的推送接口支持客户自行填写，实际值只应存在于本地配置文件。</li>
-              <li>模拟盘账号、交易接口、Webhook、Token、连接文件都应只保留在私有部署环境中。</li>
-              <li>上传 GitHub 前，务必再次检查是否误留下 CSV、自选池、日志或临时测试配置。</li>
+              <li>股票桥接、期货桥接、推送配置页面都保留入口和页面结构，便于说明模块关系。</li>
+              <li>飞书、钉钉、企业微信的推送接口支持客户自行填写。</li>
+              <li>模拟盘账号、交易接口和通知参数建议按实际部署环境单独配置。</li>
+              <li>如需扩展自动化能力，可继续把股票信号、期货信号和交易回报统一接入通知中心。</li>
             </ul>
           </article>
           <article class="usage-doc-card">
             <h3>7. 推送配置怎么接</h3>
-            <p>`推送配置` 页面已经支持三种机器人：飞书、钉钉、企业微信。客户可以自己填写 API/Webhook。</p>
+            <p>`推送配置` 页面已经支持三种机器人：飞书、钉钉、企业微信，客户可以自己填写地址。</p>
             <ul class="usage-doc-list">
               <li>先在各自平台创建群机器人，拿到 Webhook 地址。</li>
               <li>把地址填进通知中心，勾选需要接收的事件类型后点击 `保存推送配置`。</li>
@@ -1615,15 +1614,15 @@
       const SOURCE_META = {
         alltick: {
           label: "AllTick",
-          note: "当前查看 AllTick 版本。公开版保留界面和切换能力，真实记录已清空。",
+          note: "当前查看 AllTick 版本，用于展示多源接入下的页面结构与功能入口。",
         },
         tdx: {
           label: "通达信",
-          note: "当前查看通达信版本。公开版保留功能布局，真实列表和历史记录已移除。",
+          note: "当前查看通达信版本，用于展示来源标签切换后的页面布局与信息分区。",
         },
         eastmoney: {
           label: "东方财富",
-          note: "当前查看东方财富版本。公开版保留页面能力说明，真实批次和信号记录已清空。",
+          note: "当前查看东方财富版本，用于展示页面风格、来源说明与完整信号表结构。",
         },
       };
 

@@ -607,9 +607,9 @@ HTML = """<!doctype html>
   <div class="shell">
     <section class="hero">
       <h1>期货盯盘面板</h1>
-      <p>当前本地公开版已经隐藏真实行情记录、策略命中、夜盘任务状态和历史模块数据，仅保留页面结构与入口说明，方便上传 GitHub。</p>
+      <p>当前页面用于展示期货盯盘模块的布局、指标卡片、表格区域与主要操作入口。</p>
       <div class="hero-row">
-        <span class="chip">回测：三交易日前历史</span>
+        <span class="chip">历史模块：保留展示位</span>
         <span class="chip">自动预启动：开盘前 10 分钟</span>
       </div>
       <div class="toolbar">
@@ -624,27 +624,26 @@ HTML = """<!doctype html>
     </section>
 
     <section class="public-doc">
-      <h2>公开版文档信息</h2>
+      <h2>页面说明</h2>
       <p>
-        这份期货信号页已切换为 GitHub 公开展示模式。真实行情记录、命中事件、历史模块数据、夜盘任务与生成日志已从页面展示中移除，
-        只保留风格、布局和入口说明。
+        这份期货信号页用于展示期货模块的页面结构、指标区域、表格布局和按钮入口，方便说明整体产品能力。
       </p>
       <div class="public-doc-grid">
         <div class="public-doc-item">
           <strong>页面结构保留</strong>
-          <span>保留期货盯盘页的整体样式、入口按钮和模块布局，方便公开说明项目能力。</span>
+          <span>保留期货盯盘页的整体样式、入口按钮和模块布局，便于展示产品结构。</span>
         </div>
         <div class="public-doc-item">
-          <strong>敏感记录移除</strong>
-          <span>价格快照、历史命中、夜盘任务、回测数据、表格记录和日志面板均不在公开页显示。</span>
+          <strong>模块位置保留</strong>
+          <span>价格区、事件区、历史区、异常区和任务区都保留在页面中，方便演示完整工作流。</span>
         </div>
         <div class="public-doc-item">
-          <strong>私有环境恢复</strong>
-          <span>如需恢复真实数据，请在私有环境中重新接入你的 CSV、日志、任务进程和行情服务。</span>
+          <strong>完整能力接入</strong>
+          <span>如需启用完整数据与任务能力，可在部署环境中接入对应的行情源、任务服务和桥接模块。</span>
         </div>
       </div>
       <div class="public-doc-tip">
-        当前页面适合直接提交到 GitHub 或给他人预览前端结构，不会再从这份公开版中读出任何真实交易或策略信息。
+        当前页面重点展示期货模块的功能布局、操作入口和页面结构。
       </div>
     </section>
 
@@ -706,22 +705,22 @@ HTML = """<!doctype html>
         <div class="section-head">
           <h3>策略说明</h3>
           <div class="section-tools">
-            <div class="meta">公开版已隐藏</div>
+            <div class="meta">模块预览</div>
             <button type="button" class="collapse-toggle" data-collapse-target="strategyCard" aria-expanded="false">展开面板</button>
           </div>
         </div>
         <div class="collapsible-body">
           <div class="formula">
-            <div>公开版保留了期货策略模块的位置与页面结构。</div>
-            <div>具体策略定义、触发条件、参数细节与执行逻辑已从公开展示中移除。</div>
-            <div>如需恢复私有版，请在本地或私有部署环境接入你自己的策略文件与运行配置。</div>
+            <div>这里用于展示期货策略模块的位置与页面结构。</div>
+            <div>页面当前保留策略说明区域、折叠交互和信息展示位。</div>
+            <div>如需展示完整策略内容，可在你的部署环境中接入对应说明数据。</div>
           </div>
         </div>
       </article>
 
       <article class="card span-12">
         <div class="section-head">
-          <h3>历史模块预览</h3>
+          <h3>历史模块</h3>
           <div class="meta" id="backtestMeta">-</div>
         </div>
         <div class="formula" id="backtestSummaryNote">还没有历史明细。</div>
@@ -909,38 +908,38 @@ HTML = """<!doctype html>
       renderMetrics(payload.summary);
 
       document.getElementById("eventsMeta").textContent = publicMode
-        ? "公开版已隐藏历史命中记录"
+        ? "事件模块预览"
         : `共 ${payload.summary.event_rows} 条，最近扫描 ${payload.summary.scan_updated_at || "未知"}`;
       document.getElementById("pricesMeta").textContent = publicMode
-        ? "公开版已隐藏最新价明细"
+        ? "价格模块预览"
         : `共 ${payload.summary.price_rows} 条，最近刷新 ${payload.summary.prices_updated_at || "未知"}`;
       document.getElementById("matchesMeta").textContent = publicMode
-        ? "公开版已隐藏最后三根命中"
+        ? "命中模块预览"
         : `共 ${payload.summary.match_rows} 条`;
       document.getElementById("snapshotErrorsMeta").textContent = publicMode
-        ? "公开版已隐藏异常明细"
+        ? "异常模块预览"
         : `共 ${payload.snapshot_errors.length} 条`;
       document.getElementById("priceErrorsMeta").textContent = publicMode
-        ? "公开版已隐藏异常明细"
+        ? "异常模块预览"
         : `共 ${payload.price_errors.length} 条`;
       document.getElementById("watchMeta").textContent =
-        payload.watch.command || (publicMode ? "公开版已隐藏夜盘任务" : "等待夜盘任务启动");
+        payload.watch.command || (publicMode ? "任务面板预览" : "等待夜盘任务启动");
 
       const backtestSummary = payload.backtest && payload.backtest.summary ? payload.backtest.summary : {};
       document.getElementById("backtestMeta").textContent = publicMode
-        ? "公开版演示模块"
+        ? "历史模块预览"
         : backtestSummary.updated_at
           ? `目标日 ${backtestSummary.trade_date || "-"}，更新 ${backtestSummary.updated_at}`
           : `目标日 ${backtestSummary.trade_date || "-"}`;
       document.getElementById("backtestSummaryNote").innerHTML = publicMode
         ? [
-            backtestSummary.public_note || "公开版仅保留历史模块展示位。",
-            "当前不展示任何真实历史明细或统计结果。",
-            "如需实际数据，请使用你的私有部署环境。",
+            backtestSummary.public_note || "当前页面展示历史模块的结构、表格位置和信息区域。",
+            "这里主要用于说明历史模块在期货盯盘页面中的布局与作用。",
+            "如需接入完整历史数据，可在你的部署环境中补充对应数据服务。",
           ].map((line) => `<div>${line}</div>`).join("")
         : [
             backtestSummary.available
-              ? `这里直接按“历史命中”的样子展示三交易日前的信号明细。`
+              ? `这里按历史模块的展示方式呈现对应日期的信号明细。`
               : "还没有历史明细，点击上方按钮即可刷新。",
             backtestSummary.available
               ? `当前共找到 ${backtestSummary.total_trades} 条信号，页面展示最近 ${backtestSummary.rows_shown || 0} 条。`
@@ -954,33 +953,33 @@ HTML = """<!doctype html>
         "eventsTableWrap",
         payload.events,
         ["连续代码", "交易所", "品种", "A_time", "B_time", "C_time", "A_high", "B_low", "C_low", "C_close"],
-        publicMode ? "公开版已隐藏今天命中事件。" : "今天还没有命中事件。",
+        publicMode ? "当前页面保留了事件模块的表格结构与展示位置。" : "今天还没有命中事件。",
         { compactMode: true }
       );
       renderTable(
         "pricesTableWrap",
         payload.prices,
         ["交易所", "品种", "连续代码", "名称", "时间", "开盘", "最高", "最低", "最新价", "持仓量", "成交量"],
-        publicMode ? "公开版已隐藏全部期货最新价明细。" : "还没有最新价数据。"
+        publicMode ? "当前页面保留了价格模块的表格结构与展示位置。" : "还没有最新价数据。"
       );
       renderTable(
         "matchesTableWrap",
         payload.matches,
         ["连续代码", "交易所", "品种", "latest_bar_time", "latest_price", "match_count", "A_time", "B_time", "C_time", "B_low", "C_low"],
-        publicMode ? "公开版已隐藏最后三根 K 线命中明细。" : "当前最后三根 K 线没有命中。",
+        publicMode ? "当前页面保留了命中模块的表格结构与展示位置。" : "当前最后三根 K 线没有命中。",
         { compactMode: true }
       );
       renderTable(
         "snapshotErrorsWrap",
         payload.snapshot_errors,
         ["连续代码", "交易所", "品种", "error", "scan_time"],
-        publicMode ? "公开版已隐藏分钟线异常品种明细。" : "分钟线没有异常。"
+        publicMode ? "当前页面保留了异常模块的表格结构与展示位置。" : "分钟线没有异常。"
       );
       renderTable(
         "priceErrorsWrap",
         payload.price_errors,
         ["交易所", "品种", "连续代码", "错误"],
-        publicMode ? "公开版已隐藏最新价异常品种明细。" : "最新价没有异常。"
+        publicMode ? "当前页面保留了异常模块的表格结构与展示位置。" : "最新价没有异常。"
       );
       renderTable(
         "backtestSummaryWrap",
@@ -997,12 +996,12 @@ HTML = """<!doctype html>
           "C_low",
           "C_close",
         ],
-        publicMode ? "公开版仅保留历史模块展示位。" : "还没有历史明细。",
+        publicMode ? "当前页面保留了历史模块的表格结构与展示位置。" : "还没有历史明细。",
         { compactMode: true }
       );
 
       document.getElementById("watchLog").textContent =
-        payload.watch.log_tail || (publicMode ? "公开版不展示夜盘任务日志。" : "日志为空。");
+        payload.watch.log_tail || (publicMode ? "这里展示夜盘任务面板的位置与日志样式。" : "日志为空。");
     }
 
     async function loadData(silent = false) {
@@ -1113,33 +1112,33 @@ def build_public_dashboard_data() -> dict[str, object]:
             "match_rows_text": "-",
             "event_rows": 0,
             "event_rows_text": "-",
-            "prices_updated_at": "公开版已隐藏",
-            "scan_updated_at": "公开版已隐藏",
-            "price_note": "公开版已隐藏最新价覆盖与明细。",
-            "event_note": "公开版已隐藏今天命中事件。",
-            "match_note": "公开版已隐藏最后三根命中结果。",
+            "prices_updated_at": "模块展示中",
+            "scan_updated_at": "模块展示中",
+            "price_note": "当前页面展示价格模块的位置与卡片样式。",
+            "event_note": "当前页面展示事件模块的位置与卡片样式。",
+            "match_note": "当前页面展示命中模块的位置与卡片样式。",
             "watch_running": False,
-            "watch_status_text": "公开版",
+            "watch_status_text": "展示模式",
             "watch_status_level": "",
-            "watch_note": "公开版已隐藏夜盘任务状态与调度结果。",
-            "latest_event_summary": "公开版已隐藏真实命中摘要。",
+            "watch_note": "当前页面展示夜盘任务区域的位置与状态卡片。",
+            "latest_event_summary": "当前页面展示期货模块摘要区域。",
             "akshare_api_ok": False,
-            "akshare_api_status": "公开版",
+            "akshare_api_status": "展示模式",
             "akshare_api_level": "",
-            "akshare_api_note": "公开版不探测真实 AkShare 接口状态。",
+            "akshare_api_note": "当前页面展示 AkShare 接口状态卡片的位置。",
             "akshare_api_request_ms": None,
             "akshare_tick_delay_seconds": None,
             "akshare_tick_delay_text": "-",
-            "akshare_tick_delay_note": "公开版不展示真实 AkShare Tick 延迟。",
+            "akshare_tick_delay_note": "当前页面展示 AkShare Tick 延迟卡片的位置。",
             "akshare_tick_delay_level": "",
             "alltick_api_ok": False,
-            "alltick_api_status": "公开版",
+            "alltick_api_status": "展示模式",
             "alltick_api_level": "",
-            "alltick_api_note": "公开版不探测真实 AllTick 接口状态。",
+            "alltick_api_note": "当前页面展示 AllTick 接口状态卡片的位置。",
             "alltick_api_request_ms": None,
             "alltick_tick_delay_seconds": None,
             "alltick_tick_delay_text": "-",
-            "alltick_tick_delay_note": "公开版不展示真实 AllTick Tick 延迟。",
+            "alltick_tick_delay_note": "当前页面展示 AllTick Tick 延迟卡片的位置。",
             "alltick_tick_delay_level": "",
         },
         "prices": [],
@@ -1164,7 +1163,7 @@ def build_public_dashboard_data() -> dict[str, object]:
                 "avg_net_return_pct_text": "0.0000%",
                 "total_net_return_pct": 0.0,
                 "total_net_return_pct_text": "0.0000%",
-                "public_note": "公开版仅保留历史模块展示位，不展示真实数据。",
+                "public_note": "当前页面展示历史模块的结构、摘要区域与表格位置。",
             },
             "rows": [],
             "failed": [],
@@ -1172,9 +1171,9 @@ def build_public_dashboard_data() -> dict[str, object]:
         "watch": {
             "pid": None,
             "running": False,
-            "command": "公开版已隐藏夜盘任务入口",
+            "command": "任务入口展示位",
             "dir": str(BASE_DIR),
-            "log_tail": "公开版不展示夜盘任务日志。",
+            "log_tail": "这里展示夜盘任务日志区域的样式与布局。",
             "log_updated_at": "",
         },
     }
@@ -2216,7 +2215,7 @@ class DashboardHandler(BaseHTTPRequestHandler):
                 {
                     "ok": True,
                     "public_mode": True,
-                    "message": "公开版保留了按钮入口，但不会执行真实扫描、拉价或回测任务。",
+                    "message": "当前页面保留了按钮入口，用于展示操作流程与页面交互。",
                     "stdout": "",
                     "stderr": "",
                 },

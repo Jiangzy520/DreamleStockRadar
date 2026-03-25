@@ -496,7 +496,7 @@ HTML_TEMPLATE = """
     <div class="hero">
       <div>
         <h1>Push-XTP 仪表盘</h1>
-        <div class="sub">GitHub 公开版已切换为脱敏展示，页面结构与入口保留，真实账户、策略和历史记录全部替换成公开占位。</div>
+        <div class="sub">展示股票桥接模块的结构、入口、信息卡片与功能区域。</div>
       </div>
       <div class="hero-actions">
         <a class="hero-link-card" href="http://127.0.0.1:18080/push">
@@ -512,7 +512,7 @@ HTML_TEMPLATE = """
         <a class="hero-link-card" href="futures">
           <div class="hero-link-label">Futures</div>
           <div class="hero-link-title">期货自动交易</div>
-          <div class="hero-link-sub">查看期货桥接页面结构、占位卡片与公开版模块说明</div>
+          <div class="hero-link-sub">查看期货桥接页面结构、信息卡片与模块说明</div>
         </a>
         <a class="hero-link-card" href="notifications">
           <div class="hero-link-label">Notify</div>
@@ -523,27 +523,26 @@ HTML_TEMPLATE = """
       </div>
     </div>
     <section class="public-doc-card">
-      <div class="public-doc-title">公开版文档信息</div>
+      <div class="public-doc-title">页面说明</div>
       <div class="public-doc-note">
-        这份桥接页用于 GitHub 公开展示。真实账户、策略参数、持仓、委托、成交、跳过原因、桥接日志和运行中的历史记录
-        已全部替换成公开占位。当前保留入口、模块层级和三源支持说明，方便公开介绍你的系统结构。
+        这份桥接页用于展示股票桥接模块的布局、服务状态卡片、模块层级和三源入口说明。
       </div>
       <div class="public-doc-grid">
         <div class="public-doc-item">
           <strong>AllTick 版本</strong>
-          <span>保留来源名称与结构说明，不再展示真实 API、真实推送记录或运行状态。</span>
+          <span>保留来源名称与结构说明，方便展示多源接入后的页面组织方式。</span>
         </div>
         <div class="public-doc-item">
           <strong>通达信版本</strong>
-          <span>保留版本入口与模块位置，不再公开自选池分配、信号明细和策略联动信息。</span>
+          <span>保留版本入口与模块位置，用于说明来源切换和模块关系。</span>
         </div>
         <div class="public-doc-item">
           <strong>东方财富版本</strong>
-          <span>保留界面入口和来源说明，真实批次、Tick、账户关联与历史记录均改成公开占位。</span>
+          <span>保留界面入口和来源说明，方便展示页面风格与来源标识方式。</span>
         </div>
       </div>
       <div class="public-doc-tip">
-        上传 GitHub 时，这个公开版只用于展示页面结构和三源支持能力。若需要恢复真实桥接能力，请重新放回你私有环境中的配置、状态和日志文件。
+        当前页面重点展示股票桥接模块的结构、入口与信息卡片布局。
       </div>
     </section>
 
@@ -1237,8 +1236,8 @@ HTML_TEMPLATE = """
       document.getElementById("bridgeSummary").innerHTML = [
         ["推送源", bridge.snapshot_url || "-"],
         ["日志级别", bridge.log_level || "-"],
-        ["日志文件", bridge.log_file || "-"],
-        ["状态文件", bridge.state_file || "-"],
+        ["运行记录", bridge.log_file || "-"],
+        ["模块状态", bridge.state_file || "-"],
         ["轮询间隔", `${bridge.poll_interval_seconds ?? "-"} 秒`],
         ["交易时段", (bridge.trading_sessions || []).join(" , ") || "-"],
         ["过滤规则", (bridge.filter_flags || []).join(" / ") || "-"],
@@ -1442,7 +1441,7 @@ FUTURES_HTML_TEMPLATE = """
     <div class="hero">
       <div>
         <h1>Push-CTP 期货仪表盘</h1>
-        <div class="sub" id="generatedAt">公开版已把真实 CTP 账户、策略、持仓、成交和日志替换成占位数据，保留页面结构与入口说明。</div>
+        <div class="sub" id="generatedAt">展示期货桥接模块的结构、入口关系、卡片区域与功能布局。</div>
       </div>
       <div class="nav">
         <a href="http://127.0.0.1:18080/push">返回股票信号页</a>
@@ -1453,27 +1452,26 @@ FUTURES_HTML_TEMPLATE = """
       </div>
     </div>
     <section class="public-doc-card">
-      <div class="public-doc-title">公开版文档信息</div>
+      <div class="public-doc-title">页面说明</div>
       <div class="public-doc-note">
-        这份期货桥接页已切换为 GitHub 公开展示模式。所有真实 CTP 账户信息、策略参数、已实现盈亏、配对记录、委托成交、
-        持仓与日志内容都已替换成公开占位，页面保留结构、入口和模块说明。
+        这份期货桥接页用于展示期货桥接模块的整体结构、入口关系、卡片布局和功能区域。
       </div>
       <div class="public-doc-grid">
         <div class="public-doc-item">
           <strong>桥接结构</strong>
-          <span>保留股票桥接、期货桥接和信号页入口，方便公开展示系统模块关系。</span>
+          <span>保留股票桥接、期货桥接和信号页入口，方便展示系统模块关系。</span>
         </div>
         <div class="public-doc-item">
-          <strong>敏感信息处理</strong>
-          <span>账户、持仓、成交、历史回放、策略摘要和运行日志均已改成公开占位，不再保留真实记录。</span>
+          <strong>模块布局保留</strong>
+          <span>账户区、持仓区、成交区、历史区和日志区都保留在页面中，便于演示完整布局。</span>
         </div>
         <div class="public-doc-item">
-          <strong>恢复方式</strong>
-          <span>需要恢复真实交易能力时，请在私有环境重新放回配置、状态、日志与本地服务。</span>
+          <strong>完整能力接入</strong>
+          <span>如需启用完整桥接与交易流程，可在部署环境中接入账户、数据源与消息通道。</span>
         </div>
       </div>
       <div class="public-doc-tip">
-        当前公开版适合上传 GitHub 或给他人预览页面结构，不会再通过本地这份页面暴露任何可直接使用的账户、策略或交易记录。
+        当前页面重点展示期货桥接模块的功能结构、卡片布局与入口关系。
       </div>
     </section>
     <div class="grid sensitive-section">
@@ -1978,7 +1976,7 @@ NOTIFICATIONS_HTML_TEMPLATE = """
     <div class="grid">
       <section class="card span-12">
         <div class="title">使用文档</div>
-        <div class="note">这部分用于给客户直接看，说明怎么填写推送 API、怎么测试、以及当前自动联动做到哪一步。</div>
+        <div class="note">这部分用于给客户直接看，说明怎么填写推送地址、怎么测试，以及通知中心的使用方式。</div>
         <div class="doc-grid" style="margin-top: 12px;">
           <div>
             <div class="label">第一步：准备机器人 Webhook</div>
@@ -1993,7 +1991,7 @@ NOTIFICATIONS_HTML_TEMPLATE = """
             <div class="label">第二步：保存并测试</div>
             <ul class="doc-list">
               <li>勾选通道是否启用，再勾选它要接收的事件类型。</li>
-              <li>点击 `保存推送配置` 后，配置会写入本地 <code class="mono">notification_channels.local.json</code>。</li>
+              <li>点击 `保存推送配置` 后，当前部署环境会保存这组推送参数。</li>
               <li>然后在右侧 `测试发送` 区域选事件、填标题和内容，点击 `发送测试消息`。</li>
               <li>如果通道配置正确，飞书/钉钉/企业微信会立即收到测试文本消息。</li>
             </ul>
@@ -2011,21 +2009,17 @@ NOTIFICATIONS_HTML_TEMPLATE = """
             <div class="label">当前状态说明</div>
             <ul class="doc-list">
               <li>现在已经支持“保存配置 + 手动测试 + 统一接收接口路由”。</li>
-              <li>但还没有把现有全部股票/期货信号脚本和成交回报脚本自动挂到这条通知接口上。</li>
-              <li>也就是说：测试能发、手动 POST 能发，自动全站联动还需要再接一步。</li>
-              <li>如果后面要上线自动推送，我建议把股票信号、期货信号、股票成交、期货成交四条链路都统一接入这里。</li>
+              <li>你可以先用测试消息确认通道是否可达，再按需要接入股票和期货事件。</li>
+              <li>统一接收接口适合后续扩展到更多信号与交易场景。</li>
+              <li>如果后面要做自动推送，可把股票信号、期货信号和交易回报统一接入这里。</li>
             </ul>
           </div>
-        </div>
-        <div class="doc-tip">
-          上传 GitHub 前要特别注意：<code class="mono">push_xtp_bridge/state/notification_channels.local.json</code> 虽然默认被忽略，
-          但如果你手动打包整个目录发给别人，这个文件也会跟着出去。所以正式公开前请确认里面没有真实 Webhook，或者直接删除本地文件只保留模板文件。
         </div>
       </section>
 
       <section class="card span-12">
         <div class="title">渠道配置</div>
-        <div class="note">配置保存在本地文件 <code class="mono">push_xtp_bridge/state/notification_channels.local.json</code>，默认不会被 Git 跟踪。</div>
+        <div class="note">在这里填写飞书、钉钉、企业微信的推送地址，并为不同事件配置接收规则。</div>
         <div class="grid" style="margin-top: 16px;">
           <div class="card span-4">
             <div class="switch-row">
@@ -2681,7 +2675,7 @@ def public_system_metrics() -> dict[str, Any]:
         "disk_free_gb": "-",
         "disk_used_pct": None,
         "disk_level": "ok",
-        "uptime_text": "公开版已隐藏",
+        "uptime_text": "展示模式",
         "updated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
     }
 
@@ -3932,7 +3926,7 @@ def build_public_dashboard_payload() -> dict[str, Any]:
             "log_level": "public",
             "log_file": "public-hidden",
             "state_file": "public-hidden",
-            "trading_sessions": ["公开版不展示真实时段"],
+            "trading_sessions": ["展示模式"],
             "filter_flags": ["AllTick", "通达信", "东方财富"],
             "processed_count": 0,
             "bootstrap_complete": False,
@@ -3945,7 +3939,7 @@ def build_public_dashboard_payload() -> dict[str, Any]:
             "latest_tick_price": "",
             "latest_signal": {
                 "symbol": "-",
-                "name": "公开版已清空记录",
+                "name": "结构展示位",
                 "trading_day": now.strftime("%Y-%m-%d"),
                 "signal_time": "-",
                 "signal_price": "-",
@@ -3953,10 +3947,10 @@ def build_public_dashboard_payload() -> dict[str, Any]:
             "signals": [],
         },
         "overlap": overlap_payload,
-        "logs": ["公开版已清空股票桥接日志，仅保留页面结构、入口与占位说明。"],
+        "logs": ["这里展示股票桥接日志区域的位置与布局。"],
         "config": {},
         "account": {
-            "account": "公开版已隐藏",
+            "account": "展示模式",
             "balance": "-",
             "available": "-",
             "frozen": "-",
@@ -3964,15 +3958,15 @@ def build_public_dashboard_payload() -> dict[str, Any]:
             "timestamp": "-",
         },
         "tomorrow_trade_health": {
-            "status": "公开版已脱敏",
+            "status": "展示模式",
             "level": "ok",
             "date": now.strftime("%Y-%m-%d"),
             "weekday": weekday,
-            "summary": "页面结构保留，真实健康检查和运行结果已隐藏。",
+            "summary": "当前展示的是健康检查区域的位置、卡片结构与说明布局。",
             "checks": [
                 {"name": "三源入口", "ok": True, "detail": "AllTick / 通达信 / 东方财富结构保留"},
                 {"name": "信号返回", "ok": True, "detail": "股票信号页和期货信号页入口可直接访问"},
-                {"name": "交易记录", "ok": True, "detail": "历史记录、账户和策略信息已全部清空"},
+                {"name": "交易记录", "ok": True, "detail": "页面保留记录区域与结构说明"},
             ],
             "last_error": "",
         },
@@ -4010,7 +4004,7 @@ def build_public_futures_payload() -> dict[str, Any]:
             "resolver_cache_ttl_seconds": "-",
         },
         "account": {
-            "account": "公开版已隐藏",
+            "account": "展示模式",
             "balance": "-",
             "available": "-",
         },
@@ -4018,7 +4012,7 @@ def build_public_futures_payload() -> dict[str, Any]:
             "username": "PUBLIC-DEMO",
             "broker_id": "DEMO",
             "app_id": "TqKq",
-            "environment": "公开版演示",
+            "environment": "展示模式",
             "trade_front": "public-hidden",
             "market_front": "public-hidden",
         },
@@ -4044,13 +4038,13 @@ def build_public_futures_payload() -> dict[str, Any]:
         "unmatched_close_records": [],
         "recent_order_records": [],
         "skip_reason_counts": [],
-        "logs": ["公开版已清空期货桥接日志，仅保留页面结构、入口与占位说明。"],
+        "logs": ["这里展示期货桥接日志区域的位置与布局。"],
         "remote_snapshot": {
             "error": "",
             "summary": {
                 "event_rows": 0,
-                "watch_note": "公开版已移除真实远端信号和交易摘要",
-                "latest_event_summary": "公开版仅展示页面结构",
+                "watch_note": "当前页面展示远端信号摘要区域的位置与说明样式",
+                "latest_event_summary": "当前页面展示页面结构与卡片布局",
             },
         },
         "state": {
