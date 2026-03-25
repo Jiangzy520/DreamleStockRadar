@@ -704,19 +704,17 @@ HTML = """<!doctype html>
 
       <article class="card span-5 collapsible-card is-collapsed" id="strategyCard">
         <div class="section-head">
-          <h3>策略定义</h3>
+          <h3>策略说明</h3>
           <div class="section-tools">
-            <div class="meta">1分钟 K 线</div>
+            <div class="meta">公开版已隐藏</div>
             <button type="button" class="collapse-toggle" data-collapse-target="strategyCard" aria-expanded="false">展开面板</button>
           </div>
         </div>
         <div class="collapsible-body">
           <div class="formula">
-            <div><code>A.close &lt; A.open</code> A 为阴线</div>
-            <div><code>B.close &gt; B.open</code> B 为阳线</div>
-            <div><code>C.close &lt; C.open</code> C 为阴线</div>
-            <div><code>C.low &gt;= B.low</code> C 线最低价不能低于 B 线最低价</div>
-            <div><code>当前版本不再要求 B 突破 A</code></div>
+            <div>公开版保留了期货策略模块的位置与页面结构。</div>
+            <div>具体策略定义、触发条件、参数细节与执行逻辑已从公开展示中移除。</div>
+            <div>如需恢复私有版，请在本地或私有部署环境接入你自己的策略文件与运行配置。</div>
           </div>
         </div>
       </article>
