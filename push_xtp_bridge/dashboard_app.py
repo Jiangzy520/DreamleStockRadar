@@ -499,22 +499,22 @@ HTML_TEMPLATE = """
         <div class="sub">展示股票桥接模块的结构、入口、信息卡片与功能区域。</div>
       </div>
       <div class="hero-actions">
-        <a class="hero-link-card" href="http://127.0.0.1:18080/push">
+        <a class="hero-link-card" href="/push" data-local-href="http://127.0.0.1:18080/push" data-remote-href="/push">
           <div class="hero-link-label">Signals</div>
           <div class="hero-link-title">返回股票信号页</div>
           <div class="hero-link-sub">回到本地股票实时信号中心与完整信号表</div>
         </a>
-        <a class="hero-link-card" href="http://127.0.0.1:18081/">
+        <a class="hero-link-card" href="/futures" data-local-href="http://127.0.0.1:18081/" data-remote-href="/futures">
           <div class="hero-link-label">Signals</div>
           <div class="hero-link-title">返回期货信号页</div>
           <div class="hero-link-sub">回到本地期货信号面板与行情提醒页面</div>
         </a>
-        <a class="hero-link-card" href="futures">
+        <a class="hero-link-card" href="/bridge/futures" data-local-href="http://127.0.0.1:8792/futures" data-remote-href="/bridge/futures">
           <div class="hero-link-label">Futures</div>
           <div class="hero-link-title">期货自动交易</div>
           <div class="hero-link-sub">查看期货桥接页面结构、信息卡片与模块说明</div>
         </a>
-        <a class="hero-link-card" href="notifications">
+        <a class="hero-link-card" href="/notifications" data-local-href="http://127.0.0.1:8792/notifications" data-remote-href="/notifications">
           <div class="hero-link-label">Notify</div>
           <div class="hero-link-title">通知推送</div>
           <div class="hero-link-sub">配置飞书、钉钉、企业微信 Webhook，并接收四类信号/交易事件</div>
@@ -788,6 +788,14 @@ HTML_TEMPLATE = """
       if (empty) {
         empty.style.display = rowsHtml ? "none" : "block";
       }
+    }
+
+    function syncEnvironmentLinks() {
+      const host = String(window.location.hostname || "").toLowerCase();
+      const isLocalHost = host === "127.0.0.1" || host === "localhost";
+      document.querySelectorAll("a[data-local-href][data-remote-href]").forEach((link) => {
+        link.href = isLocalHost ? link.dataset.localHref : link.dataset.remoteHref;
+      });
     }
 
     function renderHtmlTable(targetId, headers, rows, emptyText = "暂无数据") {
@@ -1139,6 +1147,8 @@ HTML_TEMPLATE = """
       document.getElementById("futuresLogTail").textContent = (data.logs || []).join("\\n") || "暂无日志";
     }
 
+    syncEnvironmentLinks();
+
     async function loadData() {
       const response = await fetch("api/data", { cache: "no-store" });
       const data = await response.json();
@@ -1444,11 +1454,11 @@ FUTURES_HTML_TEMPLATE = """
         <div class="sub" id="generatedAt">展示期货桥接模块的结构、入口关系、卡片区域与功能布局。</div>
       </div>
       <div class="nav">
-        <a href="http://127.0.0.1:18080/push">返回股票信号页</a>
-        <a href="http://127.0.0.1:18081/">返回期货信号页</a>
-        <a href="./">股票桥接</a>
-        <a href="futures">期货桥接</a>
-        <a href="notifications">通知推送</a>
+        <a href="/push" data-local-href="http://127.0.0.1:18080/push" data-remote-href="/push">返回股票信号页</a>
+        <a href="/futures" data-local-href="http://127.0.0.1:18081/" data-remote-href="/futures">返回期货信号页</a>
+        <a href="/bridge/" data-local-href="http://127.0.0.1:8792/" data-remote-href="/bridge/">股票桥接</a>
+        <a href="/bridge/futures" data-local-href="http://127.0.0.1:8792/futures" data-remote-href="/bridge/futures">期货桥接</a>
+        <a href="/notifications" data-local-href="http://127.0.0.1:8792/notifications" data-remote-href="/notifications">通知推送</a>
       </div>
     </div>
     <section class="public-doc-card">
@@ -1968,8 +1978,8 @@ NOTIFICATIONS_HTML_TEMPLATE = """
       <div class="nav">
         <a href="http://127.0.0.1:18080/push">股票信号页</a>
         <a href="http://127.0.0.1:18081/">期货信号页</a>
-        <a href="./">股票桥接</a>
-        <a href="futures">期货桥接</a>
+        <a href="/bridge/" data-local-href="http://127.0.0.1:8792/" data-remote-href="/bridge/">股票桥接</a>
+        <a href="/bridge/futures" data-local-href="http://127.0.0.1:8792/futures" data-remote-href="/bridge/futures">期货桥接</a>
       </div>
     </div>
 
@@ -2142,6 +2152,14 @@ NOTIFICATIONS_HTML_TEMPLATE = """
       wecom: "企业微信",
     };
 
+    function syncEnvironmentLinks() {
+      const host = String(window.location.hostname || "").toLowerCase();
+      const isLocalHost = host === "127.0.0.1" || host === "localhost";
+      document.querySelectorAll("a[data-local-href][data-remote-href]").forEach((link) => {
+        link.href = isLocalHost ? link.dataset.localHref : link.dataset.remoteHref;
+      });
+    }
+
     function setText(id, text) {
       const el = document.getElementById(id);
       if (el) el.textContent = text;
@@ -2236,6 +2254,7 @@ NOTIFICATIONS_HTML_TEMPLATE = """
       eventDoc.textContent = lines.join("\\n");
     }
 
+    syncEnvironmentLinks();
     document.getElementById("saveConfigBtn").addEventListener("click", saveConfig);
     document.getElementById("reloadConfigBtn").addEventListener("click", loadConfig);
     document.getElementById("sendTestBtn").addEventListener("click", sendTest);

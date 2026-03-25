@@ -617,7 +617,9 @@ HTML = """<!doctype html>
         <button id="runScanBtn" class="secondary">重跑今天历史</button>
         <button id="runPricesBtn" class="secondary">更新全部最新价</button>
         <button id="runBacktestBtn" class="secondary">刷新历史模块</button>
-        <a class="toolbar-link secondary" href="__STOCK_PANEL_URL__">返回股票信号页</a>
+        <a class="toolbar-link secondary" href="__STOCK_PANEL_URL__" data-local-href="http://127.0.0.1:18080/push" data-remote-href="/push">返回股票信号页</a>
+        <a class="toolbar-link secondary" href="/bridge/futures" data-local-href="http://127.0.0.1:8792/futures" data-remote-href="/bridge/futures">期货桥接</a>
+        <a class="toolbar-link secondary" href="/notifications" data-local-href="http://127.0.0.1:8792/notifications" data-remote-href="/notifications">通知推送</a>
         <button id="refreshBtn" class="secondary">刷新页面</button>
       </div>
       <div id="loadError" class="error-banner"></div>
@@ -776,6 +778,14 @@ HTML = """<!doctype html>
     const state = { loading: false };
     const API_BASE = window.location.pathname === "/" ? "" : window.location.pathname.replace(/\/$/, "");
     const initialData = JSON.parse(document.getElementById("initialData").textContent);
+
+    function syncEnvironmentLinks() {
+      const host = String(window.location.hostname || "").toLowerCase();
+      const isLocalHost = host === "127.0.0.1" || host === "localhost";
+      document.querySelectorAll("a[data-local-href][data-remote-href]").forEach((link) => {
+        link.href = isLocalHost ? link.dataset.localHref : link.dataset.remoteHref;
+      });
+    }
 
     function apiUrl(path) {
       return `${API_BASE}${path}`;
@@ -1059,6 +1069,7 @@ HTML = """<!doctype html>
       });
     }
 
+    syncEnvironmentLinks();
     initCollapsiblePanels();
     document.getElementById("refreshBtn").addEventListener("click", () => loadData());
     document.getElementById("runScanBtn").addEventListener("click", () => postAction("/api/run-scan", "今天历史已重跑"));
