@@ -248,6 +248,43 @@
         background: linear-gradient(180deg, rgba(15, 25, 42, 0.94), rgba(8, 15, 27, 0.92));
       }
 
+      .doc-nav-panel {
+        margin-top: 20px;
+        padding: 24px;
+        border-radius: 24px;
+        border: 1px solid rgba(110, 168, 254, 0.16);
+        background: linear-gradient(180deg, rgba(10, 20, 35, 0.92), rgba(7, 14, 25, 0.96));
+        box-shadow: 0 18px 42px rgba(3, 10, 24, 0.24);
+      }
+
+      .doc-nav-title {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 700;
+        color: #f8fbff;
+      }
+
+      .doc-nav-divider {
+        height: 1px;
+        margin: 18px 0 20px;
+        background: rgba(145, 183, 255, 0.18);
+      }
+
+      .doc-nav-list {
+        margin: 0;
+        padding-left: 28px;
+      }
+
+      .doc-nav-list li + li {
+        margin-top: 14px;
+      }
+
+      .doc-nav-list a {
+        color: #3f8cff;
+        font-size: 18px;
+        line-height: 1.7;
+      }
+
       .usage-doc-card h3 {
         margin: 0 0 8px;
         font-size: 18px;
@@ -1223,6 +1260,16 @@
         </div>
       </section>
 
+      <section class="doc-nav-panel" id="doc-nav">
+        <h2 class="doc-nav-title">文档导航</h2>
+        <div class="doc-nav-divider"></div>
+        <ul class="doc-nav-list">
+          <li><a href="#setup-guide">环境准备： 下载 VS Code 并安装 Codex 扩展</a></li>
+          <li><a href="#market-data-guide">股票、期货实时数据获取说明</a></li>
+          <li><a href="#account-api-guide">股票、期货模拟盘账号与接口说明</a></li>
+        </ul>
+      </section>
+
       <section class="public-doc-panel" id="public-docs">
         <div class="public-doc-title">公开版文档信息</div>
         <div class="public-doc-note">
@@ -1313,8 +1360,38 @@
               <li>如果你在公开版里操作过这些按钮，上传 GitHub 前建议再检查一遍当前自选是否需要清空。</li>
             </ul>
           </article>
+          <article class="usage-doc-card" id="setup-guide">
+            <h3>4. 环境准备： 下载 VS Code 并安装 Codex 扩展</h3>
+            <p>这部分对应上面的固定导航入口，说明公开版最推荐的查看和整理方式。</p>
+            <ul class="usage-doc-list">
+              <li>建议用最新版 VS Code 打开项目目录，便于浏览 HTML、Python、systemd、nginx 等文件。</li>
+              <li>安装 Codex 扩展后，可以更快定位模板、接口、服务脚本和页面入口之间的关系。</li>
+              <li>如果只是公开展示，不需要接入真实账户、真实行情或真实推送配置。</li>
+              <li>如果要做私有版恢复，请把敏感配置保留在本地环境，不要再提交到 GitHub。</li>
+            </ul>
+          </article>
+          <article class="usage-doc-card" id="market-data-guide">
+            <h3>5. 股票、期货实时数据获取说明</h3>
+            <p>公开版保留了股票三源支持和期货页面结构，但已经移除了生产环境下的真实数据依赖。</p>
+            <ul class="usage-doc-list">
+              <li>股票页现在保留 AllTick、通达信、东方财富 三源切换能力与说明文案。</li>
+              <li>期货页保留盯盘页、桥接页、指标卡和表格结构，但不展示真实命中与真实成交。</li>
+              <li>如果要恢复实时数据，需要在私有环境重新接入你自己的数据源、状态文件和运行服务。</li>
+              <li>GitHub 公开版适合展示结构，不适合直接作为生产实时数据站部署。</li>
+            </ul>
+          </article>
+          <article class="usage-doc-card" id="account-api-guide">
+            <h3>6. 股票、期货模拟盘账号与接口说明</h3>
+            <p>这部分对应你强调要保留的第三条导航，用来说明公开版已经清掉哪些账号和接口信息。</p>
+            <ul class="usage-doc-list">
+              <li>股票桥接、期货桥接、推送配置页面都保留入口和页面结构，但已去掉真实账户与真实策略参数。</li>
+              <li>飞书、钉钉、企业微信的推送接口支持客户自行填写，实际值只应存在于本地配置文件。</li>
+              <li>模拟盘账号、交易接口、Webhook、Token、连接文件都应只保留在私有部署环境中。</li>
+              <li>上传 GitHub 前，务必再次检查是否误留下 CSV、自选池、日志或临时测试配置。</li>
+            </ul>
+          </article>
           <article class="usage-doc-card">
-            <h3>4. 推送配置怎么接</h3>
+            <h3>7. 推送配置怎么接</h3>
             <p>`推送配置` 页面已经支持三种机器人：飞书、钉钉、企业微信。客户可以自己填写 API/Webhook。</p>
             <ul class="usage-doc-list">
               <li>先在各自平台创建群机器人，拿到 Webhook 地址。</li>
@@ -1325,7 +1402,7 @@
             </ul>
           </article>
           <article class="usage-doc-card">
-            <h3>5. 当前公开版的限制</h3>
+            <h3>8. 当前公开版的限制</h3>
             <p>这几个点不是故障，而是当前公开版故意保留下来的展示边界，上传 GitHub 时要让客户知道。</p>
             <ul class="usage-doc-list">
               <li>期货页和桥接页的部分按钮在公开版里只保留入口，不会执行真实扫描、拉价、回测或下单。</li>
@@ -1335,7 +1412,7 @@
             </ul>
           </article>
           <article class="usage-doc-card">
-            <h3>6. 上传 GitHub 前怎么检查</h3>
+            <h3>9. 上传 GitHub 前怎么检查</h3>
             <p>如果你准备把这份目录直接上传，建议在上传前按这个顺序再过一遍。</p>
             <ul class="usage-doc-list">
               <li>确认 `push_xtp_bridge/state/notification_channels.local.json` 里没有填入真实 Webhook。</li>
