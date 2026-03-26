@@ -1188,13 +1188,14 @@
             </p>
             <div class="quick-entries">
               <a class="quick-entry signal" href="/push">股票信号页</a>
-              <a class="quick-entry futures" href="/futures" data-local-href="http://127.0.0.1:18081/" data-remote-href="/futures">期货信号页</a>
+              <a class="quick-entry futures" href="/futures" data-local-href="/futures" data-remote-href="/futures">期货信号页</a>
               <a class="quick-entry anchor" href="#public-docs">站点说明</a>
               <a class="quick-entry anchor" href="#public-docs">三源支持</a>
-              <a class="quick-entry bridge" href="/bridge/" data-local-href="http://127.0.0.1:8792/" data-remote-href="/bridge/">股票桥接</a>
-              <a class="quick-entry bridge" href="/bridge/futures" data-local-href="http://127.0.0.1:8792/futures" data-remote-href="/bridge/futures">期货桥接</a>
-              <a class="quick-entry notify" href="/notifications" data-local-href="http://127.0.0.1:8792/notifications" data-remote-href="/notifications">推送配置</a>
+              <a class="quick-entry bridge" href="/bridge/" data-local-href="/bridge/" data-remote-href="/bridge/">股票桥接</a>
+              <a class="quick-entry bridge" href="/bridge/futures" data-local-href="/bridge/futures" data-remote-href="/bridge/futures">期货桥接</a>
+              <a class="quick-entry notify" href="/notifications" data-local-href="/notifications" data-remote-href="/notifications">推送配置</a>
               <a class="quick-entry anchor" href="#usage-guide">使用文档</a>
+              <a class="quick-entry anchor" href="#api-unified-management">API统一管理</a>
             </div>
           </div>
           <div class="status-cluster">
@@ -1267,6 +1268,7 @@
           <li><a href="#setup-guide">环境准备： 下载 VS Code 并安装 Codex 扩展</a></li>
           <li><a href="#market-data-guide">股票、期货实时数据获取说明</a></li>
           <li><a href="#account-api-guide">股票、期货模拟盘账号与接口说明</a></li>
+          <li><a href="#api-unified-management">API 统一管理</a></li>
         </ul>
       </section>
 
@@ -1398,6 +1400,18 @@
               <li>可在通知中心用 `发送测试消息` 验证当前通道是否可达。</li>
               <li>通知中心支持四种事件：股票信号、期货信号、股票交易信号、期货交易信号。</li>
               <li>统一接收接口是 `POST /api/notifications/dispatch`，后端已经能接收并路由。</li>
+            </ul>
+          </article>
+          <article class="usage-doc-card" id="api-unified-management">
+            <h3>8. API统一管理</h3>
+            <p>当前仓库已经按单 Flask 结构统一了页面入口和 API 前缀，后续接 BigQuant、桥接服务或通知中心时，只需要围绕这一套接口继续扩展。</p>
+            <ul class="usage-doc-list">
+              <li>统一页面入口：`/push`、`/futures`、`/bridge`、`/bridge/futures`、`/notifications`。</li>
+              <li>统一实时接口：`/api/realtime/*`，用于股票信号、自选池和实时展示。</li>
+              <li>统一桥接接口：`/api/bridge/stock`、`/api/bridge/futures`、`/api/bridge/futures-v2`。</li>
+              <li>统一通知接口：`/api/notifications/config`、`/api/notifications/test`、`/api/notifications/dispatch`。</li>
+              <li>统一健康检查：`/healthz`，便于本地部署、Nginx 代理和后续服务巡检。</li>
+              <li>兼容旧接口：`/api/data`、`/api/futures`、`/api/futures-v2` 仍然保留，方便旧脚本平滑切换。</li>
             </ul>
           </article>
         </div>

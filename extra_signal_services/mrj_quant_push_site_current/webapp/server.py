@@ -28,16 +28,27 @@ from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 from zoneinfo import ZoneInfo
 
-from flask import Flask, Response, jsonify, redirect, render_template, request, send_file, stream_with_context
+from flask import Flask, Response, jsonify, redirect, render_template, render_template_string, request, send_file, stream_with_context
 
 # Ensure project root is importable when launched as `python webapp/server.py`.
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+from webapp.services.bridge_dashboard import (
+    build_futures_bridge_payload,
+    build_futures_bridge_payload_v2,
+    build_stock_bridge_payload,
+    get_futures_bridge_template,
+    get_notifications_template,
+    get_stock_bridge_template,
+)
+from webapp.services.notifications import NotificationService
+
 ALLTICK_MANAGER_DIR = PROJECT_ROOT / ".guanlan" / "alltick_manager"
 ALLTICK_DIR = PROJECT_ROOT / ".guanlan" / "alltick"
 RUNTIME_DIR = PROJECT_ROOT / ".guanlan" / "runtime"
+REPO_ROOT = PROJECT_ROOT.parent.parent
 REALTIME_SIGNAL_CSV = ALLTICK_DIR / "multi_token_variant_double_bottom_signals.csv"
 WATCHLIST_CSV = ALLTICK_MANAGER_DIR / "watchlist.csv"
 API_TXT = ALLTICK_MANAGER_DIR / "apis.txt"
@@ -51,6 +62,7 @@ WATCHLIST_DAILY_DIR = ALLTICK_MANAGER_DIR / "daily_watchlists"
 WATCHLIST_IMPORT_DIR = ALLTICK_MANAGER_DIR / "watchlist_imports"
 SCAN_LOG_FILE = RUNTIME_DIR / "scan.log"
 WEB_LOG_FILE = RUNTIME_DIR / "web.log"
+NOTIFICATION_CONFIG_PATH = REPO_ROOT / "push_xtp_bridge" / "state" / "notification_channels.local.json"
 CHINA_TZ = ZoneInfo("Asia/Shanghai")
 SCAN_SERVICE_UNIT = os.getenv("SCAN_SERVICE_UNIT", "mrj-quant-scan.service").strip() or "mrj-quant-scan.service"
 SCAN_OPEN_TIMER_UNIT = os.getenv("SCAN_OPEN_TIMER_UNIT", "mrj-quant-scan-market-open.timer").strip() or "mrj-quant-scan-market-open.timer"
@@ -70,6 +82,23 @@ PUBLIC_SOURCE_OPTIONS = (
     {"id": "alltick", "label": "AllTick"},
     {"id": "tdx", "label": "通达信"},
     {"id": "eastmoney", "label": "东方财富"},
+)
+
+NOTIFICATION_EVENT_META = {
+    "stock_signal": "股票信号",
+    "futures_signal": "期货信号",
+    "stock_trade_signal": "股票交易信号",
+    "futures_trade_signal": "期货交易信号",
+}
+NOTIFICATION_CHANNEL_META = {
+    "feishu": "飞书",
+    "dingtalk": "钉钉",
+    "wecom": "企业微信",
+}
+NOTIFICATION_SERVICE = NotificationService(
+    config_path=NOTIFICATION_CONFIG_PATH,
+    event_meta=NOTIFICATION_EVENT_META,
+    channel_meta=NOTIFICATION_CHANNEL_META,
 )
 
 try:
@@ -2046,6 +2075,26 @@ def create_app(auto_connect: bool = True) -> Flask:
         provider = PUBLIC_PROVIDER_LABEL if PUBLIC_GITHUB_MODE else API_PROVIDER
         return render_template("push.html", api_provider=provider)
 
+    @app.get("/futures")
+    def futures_page() -> Any:
+        return render_template_string(get_futures_bridge_template())
+
+    @app.get("/bridge")
+    def bridge_page() -> Any:
+        return render_template_string(get_stock_bridge_template())
+
+    @app.get("/bridge/")
+    def bridge_page_slash() -> Any:
+        return render_template_string(get_stock_bridge_template())
+
+    @app.get("/bridge/futures")
+    def bridge_futures_page() -> Any:
+        return render_template_string(get_futures_bridge_template())
+
+    @app.get("/notifications")
+    def notifications_page() -> Any:
+        return render_template_string(get_notifications_template())
+
     @app.get("/api/meta")
     def api_meta() -> Any:
         runtime = app.config["bridge"]
@@ -2319,6 +2368,86 @@ def create_app(auto_connect: bool = True) -> Flask:
             )
         except Exception as exc:  # noqa: BLE001
             return jsonify({"ok": False, "error": f"保存失败: {exc}"}), 500
+
+    @app.get("/healthz")
+    def healthz() -> Any:
+        return jsonify({"ok": True, "service": "mrj-quant-web"})
+
+    @app.get("/api/bridge/stock")
+    def api_bridge_stock() -> Any:
+        return jsonify(build_stock_bridge_payload())
+
+    @app.get("/api/bridge/futures")
+    def api_bridge_futures() -> Any:
+        return jsonify(build_futures_bridge_payload())
+
+    @app.get("/api/bridge/futures-v2")
+    def api_bridge_futures_v2() -> Any:
+        return jsonify(build_futures_bridge_payload_v2())
+
+    @app.get("/api/data")
+    def api_data_compat() -> Any:
+        return jsonify(build_stock_bridge_payload())
+
+    @app.get("/api/futures")
+    def api_futures_compat() -> Any:
+        return jsonify(build_futures_bridge_payload())
+
+    @app.get("/api/futures-v2")
+    def api_futures_v2_compat() -> Any:
+        return jsonify(build_futures_bridge_payload_v2())
+
+    @app.get("/api/notifications/config")
+    def api_notifications_config_get() -> Any:
+        return jsonify({"ok": True, "data": NOTIFICATION_SERVICE.load_config()})
+
+    @app.post("/api/notifications/config")
+    def api_notifications_config_save() -> Any:
+        payload = request.get_json(silent=True) or {}
+        config = NOTIFICATION_SERVICE.save_config(payload if isinstance(payload, dict) else {})
+        return jsonify({"ok": True, "message": "通知配置已保存。", "data": config})
+
+    @app.post("/api/notifications/test")
+    def api_notifications_test() -> Any:
+        payload = request.get_json(silent=True) or {}
+        event_type = str(payload.get("event_type") or "").strip()
+        if event_type not in NOTIFICATION_EVENT_META:
+            return jsonify({"ok": False, "error": "不支持的事件类型"}), 400
+        channel = str(payload.get("channel") or "enabled").strip()
+        result = NOTIFICATION_SERVICE.dispatch_event(
+            event_type=event_type,
+            title=str(payload.get("title") or f"{NOTIFICATION_SERVICE.event_label(event_type)} 测试").strip(),
+            message=str(payload.get("message") or "这是一条来自通知推送中心的测试消息。").strip(),
+            lines=[],
+            payload={"mode": "test", "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")},
+            target_channel=channel,
+        )
+        return jsonify(
+            {
+                "ok": True,
+                "message": f"测试消息已处理，成功发送 {result['delivered_count']} 个通道。",
+                "data": result,
+            }
+        )
+
+    @app.post("/api/notifications/dispatch")
+    def api_notifications_dispatch() -> Any:
+        payload = request.get_json(silent=True) or {}
+        event_type = str(payload.get("event_type") or "").strip()
+        if event_type not in NOTIFICATION_EVENT_META:
+            return jsonify({"ok": False, "error": "不支持的事件类型"}), 400
+        lines = payload.get("lines")
+        if not isinstance(lines, list):
+            lines = []
+        result = NOTIFICATION_SERVICE.dispatch_event(
+            event_type=event_type,
+            title=str(payload.get("title") or NOTIFICATION_SERVICE.event_label(event_type)).strip(),
+            message=str(payload.get("message") or payload.get("text") or "").strip(),
+            lines=[str(line or "").strip() for line in lines if str(line or "").strip()],
+            payload=payload.get("payload") if isinstance(payload.get("payload"), dict) else {},
+            target_channel=str(payload.get("channel") or "enabled").strip(),
+        )
+        return jsonify({"ok": True, "message": "通知事件已接收。", "data": result})
 
     @app.get("/api/strategies/<kind>")
     def api_strategy_list(kind: str) -> Any:

@@ -6,6 +6,7 @@ import os
 import re
 import ssl
 import subprocess
+import sys
 import time
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -20,6 +21,16 @@ from flask import Flask, jsonify, render_template_string, request
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = SCRIPT_DIR.parent
+MAIN_WEBAPP_ROOT = PROJECT_ROOT / "extra_signal_services" / "mrj_quant_push_site_current"
+if MAIN_WEBAPP_ROOT.exists() and str(MAIN_WEBAPP_ROOT) not in sys.path:
+    sys.path.insert(0, str(MAIN_WEBAPP_ROOT))
+
+from webapp.services.notifications import (
+    DEFAULT_NOTIFICATION_CHANNEL_META as NOTIFICATION_CHANNEL_META,
+    DEFAULT_NOTIFICATION_EVENT_META as NOTIFICATION_EVENT_META,
+    NotificationService,
+)
+
 BASE_DIR = Path(os.getenv("PUSH_DASHBOARD_BASE_DIR", str(SCRIPT_DIR)))
 VNTRADER_DIR = Path(os.getenv("PUSH_DASHBOARD_VNTRADER_DIR", str(PROJECT_ROOT / "vntrader")))
 BRIDGE_CONFIG_PATH = BASE_DIR / "push_xtp_bridge.config.json"
@@ -36,17 +47,11 @@ PUBLIC_GITHUB_MODE = os.getenv("PUBLIC_GITHUB_MODE", "1").strip().lower() not in
 SERVICE_NAME = "push-xtp-bridge.service"
 FUTURES_SERVICE_NAME = "push-ctp-bridge.service"
 WEEKDAY_LABELS = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
-NOTIFICATION_EVENT_META = {
-    "stock_signal": "股票信号",
-    "futures_signal": "期货信号",
-    "stock_trade_signal": "股票交易信号",
-    "futures_trade_signal": "期货交易信号",
-}
-NOTIFICATION_CHANNEL_META = {
-    "feishu": "飞书",
-    "dingtalk": "钉钉",
-    "wecom": "企业微信",
-}
+NOTIFICATION_SERVICE = NotificationService(
+    config_path=NOTIFICATION_CONFIG_PATH,
+    event_meta=NOTIFICATION_EVENT_META,
+    channel_meta=NOTIFICATION_CHANNEL_META,
+)
 
 ACCOUNT_RE = re.compile(r"^\[账户\]\s+(?P<account>\S+)\s+balance=(?P<balance>[\d.]+)\s+available=(?P<available>[\d.]+)$")
 POSITION_RE = re.compile(r"^\[持仓\]\s+(?P<vt_positionid>\S+)\s+volume=(?P<volume>[\d.]+)\s+yd=(?P<yd>[\d.]+)$")
@@ -499,22 +504,22 @@ HTML_TEMPLATE = """
         <div class="sub">展示股票桥接模块的结构、入口、信息卡片与功能区域。</div>
       </div>
       <div class="hero-actions">
-        <a class="hero-link-card" href="/push" data-local-href="http://127.0.0.1:18080/push" data-remote-href="/push">
+        <a class="hero-link-card" href="/push" data-local-href="/push" data-remote-href="/push">
           <div class="hero-link-label">Signals</div>
           <div class="hero-link-title">返回股票信号页</div>
           <div class="hero-link-sub">回到本地股票实时信号中心与完整信号表</div>
         </a>
-        <a class="hero-link-card" href="/futures" data-local-href="http://127.0.0.1:18081/" data-remote-href="/futures">
+        <a class="hero-link-card" href="/futures" data-local-href="/futures" data-remote-href="/futures">
           <div class="hero-link-label">Signals</div>
           <div class="hero-link-title">返回期货信号页</div>
           <div class="hero-link-sub">回到本地期货信号面板与行情提醒页面</div>
         </a>
-        <a class="hero-link-card" href="/bridge/futures" data-local-href="http://127.0.0.1:8792/futures" data-remote-href="/bridge/futures">
+        <a class="hero-link-card" href="/bridge/futures" data-local-href="/bridge/futures" data-remote-href="/bridge/futures">
           <div class="hero-link-label">Futures</div>
           <div class="hero-link-title">期货自动交易</div>
           <div class="hero-link-sub">查看期货桥接页面结构、信息卡片与模块说明</div>
         </a>
-        <a class="hero-link-card" href="/notifications" data-local-href="http://127.0.0.1:8792/notifications" data-remote-href="/notifications">
+        <a class="hero-link-card" href="/notifications" data-local-href="/notifications" data-remote-href="/notifications">
           <div class="hero-link-label">Notify</div>
           <div class="hero-link-title">通知推送</div>
           <div class="hero-link-sub">配置飞书、钉钉、企业微信 Webhook，并接收四类信号/交易事件</div>
@@ -1454,11 +1459,11 @@ FUTURES_HTML_TEMPLATE = """
         <div class="sub" id="generatedAt">展示期货桥接模块的结构、入口关系、卡片区域与功能布局。</div>
       </div>
       <div class="nav">
-        <a href="/push" data-local-href="http://127.0.0.1:18080/push" data-remote-href="/push">返回股票信号页</a>
-        <a href="/futures" data-local-href="http://127.0.0.1:18081/" data-remote-href="/futures">返回期货信号页</a>
-        <a href="/bridge/" data-local-href="http://127.0.0.1:8792/" data-remote-href="/bridge/">股票桥接</a>
-        <a href="/bridge/futures" data-local-href="http://127.0.0.1:8792/futures" data-remote-href="/bridge/futures">期货桥接</a>
-        <a href="/notifications" data-local-href="http://127.0.0.1:8792/notifications" data-remote-href="/notifications">通知推送</a>
+        <a href="/push" data-local-href="/push" data-remote-href="/push">返回股票信号页</a>
+        <a href="/futures" data-local-href="/futures" data-remote-href="/futures">返回期货信号页</a>
+        <a href="/bridge/" data-local-href="/bridge/" data-remote-href="/bridge/">股票桥接</a>
+        <a href="/bridge/futures" data-local-href="/bridge/futures" data-remote-href="/bridge/futures">期货桥接</a>
+        <a href="/notifications" data-local-href="/notifications" data-remote-href="/notifications">通知推送</a>
       </div>
     </div>
     <section class="public-doc-card">
@@ -1976,10 +1981,10 @@ NOTIFICATIONS_HTML_TEMPLATE = """
         <div class="sub">统一配置飞书、钉钉、企业微信 Webhook，并通过一个接口接收股票信号、期货信号、股票交易信号、期货交易信号。</div>
       </div>
       <div class="nav">
-        <a href="http://127.0.0.1:18080/push">股票信号页</a>
-        <a href="http://127.0.0.1:18081/">期货信号页</a>
-        <a href="/bridge/" data-local-href="http://127.0.0.1:8792/" data-remote-href="/bridge/">股票桥接</a>
-        <a href="/bridge/futures" data-local-href="http://127.0.0.1:8792/futures" data-remote-href="/bridge/futures">期货桥接</a>
+        <a href="/push">股票信号页</a>
+        <a href="/futures">期货信号页</a>
+        <a href="/bridge/" data-local-href="/bridge/" data-remote-href="/bridge/">股票桥接</a>
+        <a href="/bridge/futures" data-local-href="/bridge/futures" data-remote-href="/bridge/futures">期货桥接</a>
       </div>
     </div>
 
@@ -2124,7 +2129,7 @@ NOTIFICATIONS_HTML_TEMPLATE = """
           </div>
           <div>
             <div class="label">统一接口地址</div>
-            <div class="code-block">POST http://127.0.0.1:8792/api/notifications/dispatch</div>
+            <div class="code-block">POST /api/notifications/dispatch</div>
             <div class="label" style="margin-top: 12px;">示例请求体</div>
             <div class="code-block">{
   "event_type": "stock_signal",
@@ -2298,61 +2303,27 @@ def write_json(path: Path, payload: dict[str, Any]) -> None:
 
 
 def default_notification_config() -> dict[str, Any]:
-    return {
-        "updated_at": "",
-        "channels": {
-            channel_id: {
-                "enabled": False,
-                "webhook": "",
-                "events": list(NOTIFICATION_EVENT_META.keys()),
-            }
-            for channel_id in NOTIFICATION_CHANNEL_META
-        },
-    }
+    return NOTIFICATION_SERVICE.default_config()
 
 
 def normalize_notification_events(values: Any) -> list[str]:
-    if not isinstance(values, list):
-        return []
-    seen: set[str] = set()
-    normalized: list[str] = []
-    for value in values:
-        text = str(value or "").strip()
-        if text in NOTIFICATION_EVENT_META and text not in seen:
-            seen.add(text)
-            normalized.append(text)
-    return normalized
+    return NOTIFICATION_SERVICE.normalize_events(values)
 
 
 def normalize_notification_config(payload: dict[str, Any]) -> dict[str, Any]:
-    base = default_notification_config()
-    channels = payload.get("channels", {}) if isinstance(payload, dict) else {}
-    for channel_id in NOTIFICATION_CHANNEL_META:
-        row = channels.get(channel_id, {}) if isinstance(channels, dict) else {}
-        base["channels"][channel_id] = {
-            "enabled": bool(row.get("enabled", False)),
-            "webhook": str(row.get("webhook") or "").strip(),
-            "events": normalize_notification_events(row.get("events")) or list(NOTIFICATION_EVENT_META.keys()),
-        }
-    base["updated_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    return base
+    return NOTIFICATION_SERVICE.normalize_config(payload)
 
 
 def load_notification_config() -> dict[str, Any]:
-    raw = read_json(NOTIFICATION_CONFIG_PATH)
-    if not raw:
-      return default_notification_config()
-    return normalize_notification_config(raw)
+    return NOTIFICATION_SERVICE.load_config()
 
 
 def save_notification_config(config: dict[str, Any]) -> dict[str, Any]:
-    normalized = normalize_notification_config(config)
-    write_json(NOTIFICATION_CONFIG_PATH, normalized)
-    return normalized
+    return NOTIFICATION_SERVICE.save_config(config)
 
 
 def notification_event_label(event_type: str) -> str:
-    return NOTIFICATION_EVENT_META.get(event_type, event_type or "未命名事件")
+    return NOTIFICATION_SERVICE.event_label(event_type)
 
 
 def build_notification_text(
@@ -2362,69 +2333,23 @@ def build_notification_text(
     lines: list[str] | None = None,
     payload: dict[str, Any] | None = None,
 ) -> str:
-    text_lines = [title or notification_event_label(event_type), f"事件类型：{notification_event_label(event_type)}"]
-    if message:
-        text_lines.append(message)
-    for line in lines or []:
-        clean = str(line or "").strip()
-        if clean:
-            text_lines.append(clean)
-    if isinstance(payload, dict):
-        for key, value in payload.items():
-            if isinstance(value, (str, int, float, bool)) or value is None:
-                text_lines.append(f"{key}: {value}")
-    return "\n".join(text_lines)
+    return NOTIFICATION_SERVICE.build_text(event_type, title, message, lines, payload)
 
 
 def post_json(url: str, body: dict[str, Any], timeout_seconds: float = 6.0) -> tuple[bool, str]:
-    req = Request(
-        url,
-        data=json.dumps(body, ensure_ascii=False).encode("utf-8"),
-        headers={"Content-Type": "application/json; charset=utf-8"},
-        method="POST",
-    )
-    try:
-        with urlopen(req, timeout=timeout_seconds) as response:
-            raw = response.read().decode("utf-8", errors="replace")
-        return True, raw
-    except Exception as exc:
-        return False, str(exc)
+    return NOTIFICATION_SERVICE._post_json(url, body, timeout_seconds)
 
 
 def send_feishu_notification(webhook: str, content: str) -> dict[str, Any]:
-    ok, raw = post_json(webhook, {"msg_type": "text", "content": {"text": content}})
-    if not ok:
-        return {"ok": False, "raw": raw}
-    try:
-        data = json.loads(raw or "{}")
-    except Exception:
-        data = {}
-    status_code = int(data.get("StatusCode", data.get("code", 0)) or 0) if isinstance(data, dict) else 0
-    return {"ok": status_code == 0, "raw": raw}
+    return NOTIFICATION_SERVICE._send_feishu(webhook, content)
 
 
 def send_dingtalk_notification(webhook: str, content: str) -> dict[str, Any]:
-    ok, raw = post_json(webhook, {"msgtype": "text", "text": {"content": content}})
-    if not ok:
-        return {"ok": False, "raw": raw}
-    try:
-        data = json.loads(raw or "{}")
-    except Exception:
-        data = {}
-    errcode = int(data.get("errcode", 0) or 0) if isinstance(data, dict) else 0
-    return {"ok": errcode == 0, "raw": raw}
+    return NOTIFICATION_SERVICE._send_dingtalk(webhook, content)
 
 
 def send_wecom_notification(webhook: str, content: str) -> dict[str, Any]:
-    ok, raw = post_json(webhook, {"msgtype": "text", "text": {"content": content}})
-    if not ok:
-        return {"ok": False, "raw": raw}
-    try:
-        data = json.loads(raw or "{}")
-    except Exception:
-        data = {}
-    errcode = int(data.get("errcode", 0) or 0) if isinstance(data, dict) else 0
-    return {"ok": errcode == 0, "raw": raw}
+    return NOTIFICATION_SERVICE._send_wecom(webhook, content)
 
 
 def dispatch_notification_event(
@@ -2436,53 +2361,14 @@ def dispatch_notification_event(
     payload: dict[str, Any] | None = None,
     target_channel: str = "enabled",
 ) -> dict[str, Any]:
-    config = load_notification_config()
-    text = build_notification_text(event_type, title, message, lines, payload)
-    results = []
-    delivered_count = 0
-
-    for channel_id, label in NOTIFICATION_CHANNEL_META.items():
-        channel_cfg = (config.get("channels") or {}).get(channel_id, {})
-        enabled = bool(channel_cfg.get("enabled", False))
-        webhook = str(channel_cfg.get("webhook") or "").strip()
-        events = normalize_notification_events(channel_cfg.get("events"))
-
-        if target_channel not in {"enabled", "", channel_id}:
-            continue
-        if target_channel in {"enabled", ""} and (not enabled or event_type not in events):
-            continue
-        if target_channel == channel_id and not webhook:
-            results.append({"channel": channel_id, "label": label, "ok": False, "reason": "未配置 webhook"})
-            continue
-        if not webhook:
-            results.append({"channel": channel_id, "label": label, "ok": False, "reason": "未配置 webhook"})
-            continue
-
-        if channel_id == "feishu":
-            result = send_feishu_notification(webhook, text)
-        elif channel_id == "dingtalk":
-            result = send_dingtalk_notification(webhook, text)
-        else:
-            result = send_wecom_notification(webhook, text)
-
-        results.append(
-            {
-                "channel": channel_id,
-                "label": label,
-                "ok": bool(result.get("ok")),
-                "raw": result.get("raw", ""),
-            }
-        )
-        if result.get("ok"):
-            delivered_count += 1
-
-    return {
-        "event_type": event_type,
-        "event_label": notification_event_label(event_type),
-        "delivered_count": delivered_count,
-        "results": results,
-        "updated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-    }
+    return NOTIFICATION_SERVICE.dispatch_event(
+        event_type=event_type,
+        title=title,
+        message=message,
+        lines=lines,
+        payload=payload,
+        target_channel=target_channel,
+    )
 
 
 def mask_secret(config: dict[str, Any]) -> dict[str, Any]:
